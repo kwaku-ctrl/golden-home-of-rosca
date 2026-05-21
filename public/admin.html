@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Panel | Golden Home Of ROSCA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="toast-container" aria-live="polite"></div>
+
+    <header class="site-header dashboard-header">
+      <div class="page-shell header-shell">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>Golden Home</strong>
+            <small>Admin Panel</small>
+          </div>
+        </a>
+        <nav class="site-nav dashboard-nav" aria-label="Admin navigation">
+          <a class="nav-link" href="#overview">Overview</a>
+          <a class="nav-link" href="#users">Users</a>
+          <a class="nav-link" href="#loans">Loans</a>
+          <a class="nav-link" href="#kyc">KYC</a>
+          <a class="nav-link" href="#payments">Payments</a>
+          <a class="nav-link" href="#blogs">Blogs</a>
+          <a class="nav-link" href="#notifications">Notifications</a>
+          <a class="nav-link" href="#testimonials">Testimonials</a>
+          <a class="nav-link" href="#settings">Settings</a>
+        </nav>
+        <div style="display:flex;gap:0.75rem;align-items:center">
+          <button id="refreshAdmin" class="btn btn-ghost">Refresh</button>
+          <button id="adminLogout" class="btn btn-ghost">Sign Out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-shell page-content admin-page">
+      <section id="overview" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Admin Analytics</p>
+          <h2>Platform overview</h2>
+        </div>
+        <div class="dashboard-cards">
+          <article class="dashboard-card glass-card">
+            <p>Total users</p>
+            <h2 id="statUsers">0</h2>
+            <span class="badge">All registered users</span>
+          </article>
+          <article class="dashboard-card glass-card">
+            <p>Active loans</p>
+            <h2 id="statLoans">0</h2>
+            <span class="badge">Pending & active</span>
+          </article>
+          <article class="dashboard-card glass-card">
+            <p>Total savings</p>
+            <h2 id="statSavings">GH₵ 0.00</h2>
+            <span class="badge">Member balances</span>
+          </article>
+          <article class="dashboard-card glass-card">
+            <p>Monthly repayments</p>
+            <h2 id="statRepayments">GH₵ 0.00</h2>
+            <span class="badge">Last 30 days</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="users" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">User management</p>
+          <h2>Search, filter and manage users</h2>
+        </div>
+        <div class="form-grid" style="margin-bottom:1rem">
+          <input id="userSearch" class="form-row" placeholder="Search by name, email or phone" />
+          <select id="roleFilter" class="form-row">
+            <option value="">All roles</option>
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+            <option value="super-admin">Super Admin</option>
+          </select>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <button id="exportUsers" class="btn btn-primary">Export CSV</button>
+            <div id="usersPagination" style="margin-left:auto"></div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="6">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="loans" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Loan approvals</p>
+          <h2>Review and approve loans</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+          <input id="loanSearch" class="form-row" placeholder="Search loans by user or reference" />
+          <select id="loanStatusFilter" class="form-row">
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button id="exportLoans" class="btn btn-primary">Export CSV</button>
+          <div id="loansPagination" style="margin-left:auto"></div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="loansTableAdmin">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Amount</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Applied</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="6">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="kyc" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">KYC approvals</p>
+          <h2>Verify uploaded documents</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+          <input id="kycSearch" class="form-row" placeholder="Search KYC by user or document" />
+          <select id="kycStatusFilter" class="form-row">
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="verified">Verified</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button id="exportKyc" class="btn btn-primary">Export CSV</button>
+          <div id="kycPagination" style="margin-left:auto"></div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="kycTable">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Document</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="6">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="payments" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Payments / Transactions</p>
+          <h2>Monitor payments and receipts</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+          <input id="paymentsSearch" class="form-row" placeholder="Search payments by user or reference" />
+          <select id="paymentsTypeFilter" class="form-row">
+            <option value="">All types</option>
+            <option value="deposit">Deposit</option>
+            <option value="withdrawal">Withdrawal</option>
+            <option value="repayment">Repayment</option>
+          </select>
+          <button id="exportPayments" class="btn btn-primary">Export CSV</button>
+          <div id="paymentsPagination" style="margin-left:auto"></div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="paymentsTable">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Reference</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="6">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="blogs" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Blog management</p>
+          <h2>Create and manage posts</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+          <input id="blogSearch" class="form-row" placeholder="Search blog by title or tag" />
+          <button id="exportBlogs" class="btn btn-primary">Export CSV</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="blogsTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Published</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="notifications" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Notifications</p>
+          <h2>System notifications</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+          <input id="notifSearch" class="form-row" placeholder="Search notifications" />
+          <button id="exportNotifs" class="btn btn-primary">Export CSV</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="notifsTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Priority</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="testimonials" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">Testimonials</p>
+          <h2>Manage community testimonials</h2>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+          <input id="testiSearch" class="form-row" placeholder="Search testimonials" />
+          <button id="exportTesti" class="btn btn-primary">Export CSV</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="testiTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Message</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="settings" class="glass-card section-block">
+        <div class="section-heading">
+          <p class="eyebrow">System settings</p>
+          <h2>Basic system configuration</h2>
+        </div>
+        <p class="small-muted">Settings are managed via environment variables and administrative scripts. For now, use the backend directly to adjust sensitive settings.</p>
+      </section>
+
+    </main>
+
+    <script src="scripts.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

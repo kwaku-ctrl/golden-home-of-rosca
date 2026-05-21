@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Inquiry | Golden Home Of ROSCA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="page-shell header-shell">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>Golden Home</strong>
+            <small>Of ROSCA</small>
+          </div>
+        </a>
+        <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="about.html">About</a>
+          <a class="nav-link" href="services.html">Services</a>
+          <a class="nav-link" href="contact.html">Contact</a>
+          <a class="nav-link" href="blog.html">Blog</a>
+          <a class="nav-link" href="loan-inquiry.html">Loan Inquiry</a>
+          <a class="nav-link" href="online-application.html">Apply</a>
+        </nav>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">Light</button>
+      </div>
+    </header>
+
+    <main class="page-shell page-content">
+      <section class="page-hero inquiry-hero">
+        <p class="eyebrow">Loan Inquiry</p>
+        <h1>Find the right financing for your goals.</h1>
+        <p class="hero-text">Calculate loan costs, check eligibility, and submit an inquiry with clear repayment details.</p>
+      </section>
+
+      <section class="inquiry-grid">
+        <div class="glass-card calculator-card">
+          <h2>Loan calculator</h2>
+          <div class="form-row">
+            <label for="loanAmount">Loan amount (GHS)</label>
+            <input type="number" id="loanAmount" value="5000" min="500" />
+          </div>
+          <div class="form-row">
+            <label for="loanTerm">Term (months)</label>
+            <input type="number" id="loanTerm" value="6" min="1" />
+          </div>
+          <div class="form-row">
+            <label for="loanRate">Interest rate (%)</label>
+            <input type="number" id="loanRate" value="18" min="1" />
+          </div>
+          <button id="calculateLoan" class="btn btn-primary">Calculate</button>
+          <div class="loan-result">
+            <p>Monthly repayment: <strong id="monthlyRepayment">GH₵ 0</strong></p>
+            <p>Total payable: <strong id="totalRepayment">GH₵ 0</strong></p>
+            <p>Total interest: <strong id="interestTotal">GH₵ 0</strong></p>
+          </div>
+        </div>
+
+        <div class="glass-card eligibility-card">
+          <h2>Eligibility checker</h2>
+          <div class="form-row">
+            <label for="employmentStatus">Employment status</label>
+            <select id="employmentStatus">
+              <option value="employed">Employed</option>
+              <option value="self-employed">Self-employed</option>
+              <option value="student">Student</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Monthly income</label>
+            <div class="inline-inputs">
+              <input type="number" id="monthlyIncome" value="2000" min="0" />
+              <span>GHS</span>
+            </div>
+          </div>
+          <button id="checkEligibility" class="btn btn-ghost">Check Eligibility</button>
+          <p class="result-note" id="eligibilityResult">Answer appears here.</p>
+        </div>
+      </section>
+
+      <section class="loan-request glass-card">
+        <h2>Loan request form</h2>
+        <form id="loanRequestForm" class="auth-form">
+          <div class="form-row">
+            <label for="requestName">Full name</label>
+            <input type="text" id="requestName" placeholder="Yaa Asantewaa" required />
+          </div>
+          <div class="form-row">
+            <label for="requestPhone">Phone</label>
+            <input type="tel" id="requestPhone" placeholder="0538868627" required />
+          </div>
+          <div class="form-row">
+            <label for="requestEmail">Email</label>
+            <input type="email" id="requestEmail" placeholder="name@example.com" required />
+          </div>
+          <div class="form-row">
+            <label for="requestPurpose">Purpose</label>
+            <input type="text" id="requestPurpose" placeholder="Business inventory, school fees" />
+          </div>
+          <button type="submit" class="btn btn-primary auth-submit">Submit inquiry</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-shell">
+        <p>Golden Home Of ROSCA © 2026</p>
+        <p>Loan inquiry and financial guidance made simple.</p>
+      </div>
+    </footer>
+    <script src="scripts.js"></script>
+  </body>
+</html>

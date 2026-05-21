@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog | Golden Home Of ROSCA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="page-shell header-shell">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>Golden Home</strong>
+            <small>Of ROSCA</small>
+          </div>
+        </a>
+        <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="about.html">About</a>
+          <a class="nav-link" href="services.html">Services</a>
+          <a class="nav-link" href="contact.html">Contact</a>
+          <a class="nav-link" href="blog.html">Blog</a>
+          <a class="nav-link" href="loan-inquiry.html">Loan Inquiry</a>
+          <a class="nav-link" href="online-application.html">Apply</a>
+        </nav>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">Light</button>
+      </div>
+    </header>
+
+    <main class="page-shell page-content">
+      <section class="page-hero blog-hero">
+        <p class="eyebrow">Blog</p>
+        <h1>Financial literacy for every saver and entrepreneur.</h1>
+        <p class="hero-text">Explore articles, tips, and guides for managing savings, building business credit, and growing your ROSCA circle.</p>
+      </section>
+
+      <section class="blog-search glass-card">
+        <input type="search" id="blogSearch" placeholder="Search articles" />
+      </section>
+
+      <section class="blog-meta">
+        <div class="tag-list">
+          <button class="tag-btn">Savings</button>
+          <button class="tag-btn">Loans</button>
+          <button class="tag-btn">Business</button>
+          <button class="tag-btn">Community</button>
+        </div>
+      </section>
+
+      <section class="blog-grid" id="blogGrid">
+        <article class="blog-card glass-card" data-tags="savings community">
+          <p class="eyebrow">Featured</p>
+          <h2>How to start a trusted SUSU group</h2>
+          <p>Learn the essential steps to launch and manage a successful savings circle with trust and structure.</p>
+          <a class="btn btn-ghost" href="#">Read article</a>
+        </article>
+        <article class="blog-card glass-card" data-tags="business loans">
+          <p class="eyebrow">Latest</p>
+          <h2>5 smart ways to use business loan funds</h2>
+          <p>Practical tips for investing loan capital into your trade and improving cash flow.</p>
+          <a class="btn btn-ghost" href="#">Read article</a>
+        </article>
+        <article class="blog-card glass-card" data-tags="personal loans finance">
+          <p class="eyebrow">Guide</p>
+          <h2>Managing personal credit and repayment</h2>
+          <p>Best practices to stay on top of loan schedules and protect your credit.</p>
+          <a class="btn btn-ghost" href="#">Read article</a>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-shell">
+        <p>Golden Home Of ROSCA © 2026</p>
+        <p>Financial education for stronger communities.</p>
+      </div>
+    </footer>
+    <script src="scripts.js"></script>
+  </body>
+</html>

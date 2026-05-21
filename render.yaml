@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: ghor-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        fromDatabase:
+          name: ghor-mongo
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        scope: BUILD
+        value: https://yourdomain.com
+
+databases:
+  - name: ghor-mongo
+    databaseName: ghor
+    plan: free
+    region: oregon
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all IPs (restrict in production)

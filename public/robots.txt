@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Sitemap: /sitemap.xml
+
+# For staging or private sites, replace Allow with Disallow as needed.

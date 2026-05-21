@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Member Login | Golden Home Of ROSCA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="toast-container" aria-live="polite"></div>
+    <button class="whatsapp-float" aria-label="Contact us on WhatsApp">
+      <span>WhatsApp</span>
+    </button>
+
+    <header class="site-header">
+      <div class="page-shell header-shell">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>Golden Home</strong>
+            <small>Of ROSCA</small>
+          </div>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="services.html">Services</a>
+          <a class="nav-link" href="online-application.html">Apply</a>
+          <a class="nav-link" href="login.html">Login</a>
+          <a class="nav-link" href="dashboard.html">Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell page-content auth-page">
+      <section class="auth-panel glass-card">
+        <div class="auth-header">
+          <p class="eyebrow">Secure member access</p>
+          <h1>Log in or create your member account</h1>
+          <p>Access savings, loan history, documents, receipts and full account settings.</p>
+        </div>
+
+        <div class="auth-switch">
+          <button type="button" id="loginTab" class="tab active">Login</button>
+          <button type="button" id="signupTab" class="tab">Register</button>
+        </div>
+
+        <form id="authForm" class="auth-form" novalidate>
+          <div class="form-grid">
+            <div class="form-row hidden" id="nameField">
+              <label for="name">Full name</label>
+              <input id="name" type="text" placeholder="Your full name" />
+            </div>
+            <div class="form-row hidden" id="phoneField">
+              <label for="phone">Phone number</label>
+              <input id="phone" type="text" placeholder="+233 24 000 0000" />
+            </div>
+            <div class="form-row">
+              <label for="email">Email address</label>
+              <input id="email" type="email" placeholder="name@domain.com" required />
+            </div>
+            <div class="form-row">
+              <label for="password">Password</label>
+              <input id="password" type="password" placeholder="Enter your password" required />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary auth-submit">Continue</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-shell">
+        <p>Golden Home Of ROSCA © 2026</p>
+        <p>Secure access for savings and loan members.</p>
+      </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>

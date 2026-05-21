@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Application | Golden Home Of ROSCA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="page-shell header-shell">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>Golden Home</strong>
+            <small>Of ROSCA</small>
+          </div>
+        </a>
+        <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="about.html">About</a>
+          <a class="nav-link" href="services.html">Services</a>
+          <a class="nav-link" href="contact.html">Contact</a>
+          <a class="nav-link" href="blog.html">Blog</a>
+          <a class="nav-link" href="loan-inquiry.html">Loan Inquiry</a>
+          <a class="nav-link" href="online-application.html">Apply</a>
+        </nav>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">Light</button>
+      </div>
+    </header>
+
+    <main class="page-shell page-content">
+      <section class="page-hero application-hero">
+        <p class="eyebrow">Application</p>
+        <h1>Complete your onboarding in a few steps.</h1>
+        <p class="hero-text">Our online application guides you through personal details, uploads, business info, and guarantor support.</p>
+      </section>
+
+      <section class="wizard-shell glass-card">
+        <div class="wizard-progress">
+          <span class="step active" data-step="1">1</span>
+          <span class="step" data-step="2">2</span>
+          <span class="step" data-step="3">3</span>
+          <span class="step" data-step="4">4</span>
+        </div>
+        <form id="applicationForm" class="auth-form">
+          <div class="form-step active" data-step="1">
+            <h2>Personal info</h2>
+            <div class="form-row">
+              <label for="appName">Full name</label>
+              <input id="appName" type="text" placeholder="Kofi Boateng" required />
+            </div>
+            <div class="form-row">
+              <label for="appPhone">Phone number</label>
+              <input id="appPhone" type="tel" placeholder="0538868627" required />
+            </div>
+            <div class="form-row">
+              <label for="appEmail">Email address</label>
+              <input id="appEmail" type="email" placeholder="name@example.com" required />
+            </div>
+          </div>
+
+          <div class="form-step" data-step="2">
+            <h2>ID & address upload</h2>
+            <div class="form-row">
+              <label for="ghanaCard">Ghana Card upload</label>
+              <input id="ghanaCard" type="file" accept="image/*,.pdf" />
+            </div>
+            <div class="form-row">
+              <label for="passportUpload">Passport upload</label>
+              <input id="passportUpload" type="file" accept="image/*,.pdf" />
+            </div>
+            <div class="form-row">
+              <label for="proofAddress">Proof of address upload</label>
+              <input id="proofAddress" type="file" accept="image/*,.pdf" />
+            </div>
+          </div>
+
+          <div class="form-step" data-step="3">
+            <h2>Business info</h2>
+            <div class="form-row">
+              <label for="businessName">Business name</label>
+              <input id="businessName" type="text" placeholder="Akan Traders" />
+            </div>
+            <div class="form-row">
+              <label for="businessType">Business type</label>
+              <input id="businessType" type="text" placeholder="Retail, Trade, Services" />
+            </div>
+            <div class="form-row">
+              <label for="businessIncome">Monthly revenue estimate</label>
+              <input id="businessIncome" type="number" placeholder="GHS 3000" />
+            </div>
+          </div>
+
+          <div class="form-step" data-step="4">
+            <h2>Guarantor details</h2>
+            <div class="form-row">
+              <label for="guarantorName">Guarantor full name</label>
+              <input id="guarantorName" type="text" placeholder="Adwoa Mensah" />
+            </div>
+            <div class="form-row">
+              <label for="guarantorPhone">Guarantor phone</label>
+              <input id="guarantorPhone" type="tel" placeholder="0500000000" />
+            </div>
+            <div class="form-row">
+              <label for="guarantorRelation">Relationship</label>
+              <input id="guarantorRelation" type="text" placeholder="Friend, Relative" />
+            </div>
+          </div>
+
+          <div class="wizard-controls">
+            <button type="button" class="btn btn-ghost" id="prevStep">Previous</button>
+            <button type="button" class="btn btn-primary" id="nextStep">Next</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-shell">
+        <p>Golden Home Of ROSCA © 2026</p>
+        <p>Apply with confidence and complete onboarding online.</p>
+      </div>
+    </footer>
+    <script src="scripts.js"></script>
+  </body>
+</html>

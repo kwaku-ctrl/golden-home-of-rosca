@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Member dashboard for Golden Home Of ROSCA — view savings, loans, transactions and manage your profile securely." />
+    <meta name="keywords" content="ROSCA, savings, loans, microfinance, dashboard, financial" />
+    <title>Member Dashboard | Golden Home Of ROSCA</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="canonical" href="/dashboard.html" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Member Dashboard | Golden Home Of ROSCA" />
+    <meta property="og:description" content="Secure member dashboard to view savings, loans and transactions." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="/dashboard.html" />
+    <meta property="og:site_name" content="Golden Home Of ROSCA" />
+
+    <!-- JSON-LD Organization schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Golden Home Of ROSCA",
+        "url": "/",
+        "sameAs": []
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="toast-container" aria-live="polite"></div>
+    <button class="whatsapp-float" aria-label="Contact us on WhatsApp">
+      <span>WhatsApp</span>
+    </button>
+
+    <header class="site-header dashboard-header">
+      <div class="page-shell header-shell">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-mark">G</span>
+          <div>
+            <strong>Golden Home</strong>
+            <small>Member Dashboard</small>
+          </div>
+        </a>
+        <nav class="site-nav dashboard-nav" aria-label="Dashboard navigation">
+          <a class="nav-link" href="dashboard.html">Overview</a>
+          <a class="nav-link" href="#savings">Savings</a>
+          <a class="nav-link" href="#loans">Loans</a>
+          <a class="nav-link" href="#transactions">Transactions</a>
+          <a class="nav-link" href="#notifications">Notifications</a>
+          <a class="nav-link" href="#settings">Settings</a>
+        </nav>
+        <button id="logoutBtn" class="btn btn-ghost">Sign Out</button>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell page-content dashboard-page">
+      <section class="dashboard-hero glass-card">
+        <div>
+          <p class="eyebrow">Welcome back</p>
+          <h1 id="welcomeMessage">Member</h1>
+          <p id="dashboardSubtitle">Your savings, loans, receipts and notifications in one secure place.</p>
+        </div>
+        <div class="dashboard-hero-actions">
+          <button id="refreshBtn" class="btn btn-primary">Refresh Data</button>
+        </div>
+      </section>
+
+      <section class="card-grid dashboard-cards">
+        <article class="dashboard-card glass-card">
+          <p>Available savings</p>
+          <h2 id="savingsBalance">GH₵ 0.00</h2>
+          <span class="badge badge-success">Current balance</span>
+        </article>
+        <article class="dashboard-card glass-card">
+          <p>Open loans</p>
+          <h2 id="openLoans">0</h2>
+          <span class="badge badge-warning">Pending & active</span>
+        </article>
+        <article class="dashboard-card glass-card">
+          <p>Transactions</p>
+          <h2 id="transactionCount">0</h2>
+          <span class="badge badge-info">Recent activity</span>
+        </article>
+        <article class="dashboard-card glass-card">
+          <p>Unread notices</p>
+          <h2 id="notificationCount">0</h2>
+          <span class="badge badge-muted">Action items</span>
+        </article>
+      </section>
+
+      <section class="glass-card dashboard-row">
+        <article class="dashboard-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Savings analytics</p>
+              <h2>Balance growth</h2>
+            </div>
+            <span class="badge">Last 30 days</span>
+          </div>
+          <div class="chart-card">
+            <div class="chart-grid" id="savingsChart">
+              <div class="chart-bar" data-value="0"></div>
+              <div class="chart-bar" data-value="0"></div>
+              <div class="chart-bar" data-value="0"></div>
+              <div class="chart-bar" data-value="0"></div>
+              <div class="chart-bar" data-value="0"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dashboard-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Quick actions</p>
+              <h2>Need support?</h2>
+            </div>
+          </div>
+          <div class="action-list">
+            <button id="goToApply" class="btn btn-primary">Apply for a loan</button>
+            <button id="goToUpload" class="btn btn-ghost">Upload document</button>
+            <button id="goToProfile" class="btn btn-ghost">Edit profile</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="savings" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Savings balance</p>
+            <h2>Active savings accounts</h2>
+          </div>
+        </div>
+        <div id="savingsList" class="list-panel empty-state">
+          <p>No savings accounts found. Save and grow your balance here.</p>
+        </div>
+
+        <div class="glass-card form-inline" aria-live="polite">
+          <form id="createSavingForm" class="form-grid">
+            <div class="form-row">
+              <label for="savingAmount">Initial amount (GH₵)</label>
+              <input id="savingAmount" name="amount" type="number" min="1" placeholder="100" required />
+            </div>
+            <div class="form-row">
+              <label for="savingFrequency">Frequency</label>
+              <select id="savingFrequency" name="frequency">
+                <option value="one-off">One-off</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="savingTargetDate">Target date (optional)</label>
+              <input id="savingTargetDate" name="targetDate" type="date" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Create savings account</button>
+            </div>
+          </form>
+        </div>
+        <!-- Confirmation modal for creating savings -->
+        <div id="createSavingModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;">
+          <div class="modal-content glass-card" role="document" style="max-width:420px;margin:2rem auto;padding:1rem;">
+            <h3 id="modalTitle">Confirm savings account</h3>
+            <div id="modalBody">
+              <p>You're about to create a savings account with:</p>
+              <ul>
+                <li id="modalAmount">Amount: GH₵ 0.00</li>
+                <li id="modalFrequency">Frequency: one-off</li>
+                <li id="modalTarget">Target date: none</li>
+              </ul>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;">
+              <button id="cancelSavingBtn" class="btn btn-ghost">Cancel</button>
+              <button id="confirmSavingBtn" class="btn btn-primary">Confirm</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="loans" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Loan history</p>
+            <h2>Applications & repayment status</h2>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="loansTable">
+            <thead>
+              <tr>
+                <th>Loan</th>
+                <th>Amount</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Issued</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5">No loan records yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="apply" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Apply for loan</p>
+            <h2>Submit a new loan request</h2>
+          </div>
+        </div>
+        <form id="loanForm" class="form-grid">
+          <div class="form-row">
+            <label for="loanAmount">Amount (GH₵)</label>
+            <input id="loanAmount" type="number" min="100" placeholder="5000" required />
+          </div>
+          <div class="form-row">
+            <label for="loanTerm">Duration (months)</label>
+            <input id="loanTerm" type="number" min="1" placeholder="6" required />
+          </div>
+          <div class="form-row">
+            <label for="loanPurpose">Purpose</label>
+            <input id="loanPurpose" type="text" placeholder="Business inventory, school fees" required />
+          </div>
+          <div class="form-row">
+            <label for="loanType">Loan type</label>
+            <select id="loanType">
+              <option value="personal">Personal</option>
+              <option value="business">Business</option>
+              <option value="group">Group ROSCA</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Submit request</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="upload" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Upload documents</p>
+            <h2>Submit KYC and verification files</h2>
+          </div>
+        </div>
+        <form id="uploadForm" class="form-grid" enctype="multipart/form-data">
+          <div class="form-row">
+            <label for="documentType">Document type</label>
+            <select id="documentType">
+              <option value="national_id">National ID</option>
+              <option value="passport">Passport</option>
+              <option value="utility_bill">Utility bill</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="documentFile">Upload file</label>
+            <input id="documentFile" type="file" accept="image/*,.pdf" required />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Upload document</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="transactions" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Transaction history</p>
+            <h2>Recent payments and deposits</h2>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="transactionsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Receipt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5">No transactions available.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="notifications" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Notifications</p>
+            <h2>Alerts and messages</h2>
+          </div>
+        </div>
+        <div id="notificationList" class="notification-panel empty-state">
+          <p>No notifications at this time.</p>
+        </div>
+      </section>
+
+      <section id="settings" class="glass-card section-block">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Profile settings</p>
+            <h2>Update your account details</h2>
+          </div>
+        </div>
+        <form id="profileForm" class="form-grid">
+          <div class="form-row">
+            <label for="profileName">Full name</label>
+            <input id="profileName" type="text" required />
+          </div>
+          <div class="form-row">
+            <label for="profileEmail">Email</label>
+            <input id="profileEmail" type="email" required />
+          </div>
+          <div class="form-row">
+            <label for="profilePhone">Phone</label>
+            <input id="profilePhone" type="text" />
+          </div>
+          <div class="form-row">
+            <label for="profileAddress">Address</label>
+            <input id="profileAddress" type="text" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save settings</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-shell footer-shell">
+        <p>Golden Home Of ROSCA © 2026</p>
+        <p>Secure member financial dashboard.</p>
+      </div>
+    </footer>
+
+    <script src="scripts.js" defer></script>
+    <script src="dashboard.js" defer></script>
+  </body>
+</html>
