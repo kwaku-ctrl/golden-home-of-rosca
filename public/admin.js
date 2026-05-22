@@ -1,5 +1,7 @@
 const AUTH_TOKEN_KEY = 'ghor_jwt_token';
-const apiBase = '/api';
+const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? '/api'
+  : 'https://ghor-backend.onrender.com/api';
 
 const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -91,7 +93,7 @@ const initUsersSection = () => {
       const total = res.total || 0;
       renderUsers(users);
       renderPagination('usersPagination', currentPage, Math.ceil(total / pageSize));
-      exportBtn.onclick = () => { window.location.href = `/api/users?export=csv&q=${encodeURIComponent(search.value.trim())}&role=${encodeURIComponent(role.value)}`; };
+      exportBtn.onclick = () => { window.location.href = `${apiBase}/users?export=csv&q=${encodeURIComponent(search.value.trim())}&role=${encodeURIComponent(role.value)}`; };
     } catch (err) {
       console.error(err);
     }
@@ -162,7 +164,7 @@ const initLoansSection = () => {
       const total = res.total || 0;
       renderLoansAdmin(loans);
       renderLoansPagination('loansPagination', currentPage, Math.ceil(total / pageSize));
-      exportBtn.onclick = () => { window.location.href = `/api/loans?export=csv&q=${encodeURIComponent(search.value.trim())}&status=${encodeURIComponent(status.value)}`; };
+      exportBtn.onclick = () => { window.location.href = `${apiBase}/loans?export=csv&q=${encodeURIComponent(search.value.trim())}&status=${encodeURIComponent(status.value)}`; };
       // attach action handlers
       document.querySelectorAll('.loan-approve').forEach((btn) => {
         btn.addEventListener('click', async () => {
@@ -250,7 +252,7 @@ const initKycSection = () => {
       const total = res.total || 0;
       renderKyc(items);
       renderKycPagination('kycPagination', currentPage, Math.ceil(total / pageSize));
-      exportBtn.onclick = () => { window.location.href = `/api/kyc?export=csv&q=${encodeURIComponent(search.value.trim())}&status=${encodeURIComponent(status.value)}`; };
+      exportBtn.onclick = () => { window.location.href = `${apiBase}/kyc?export=csv&q=${encodeURIComponent(search.value.trim())}&status=${encodeURIComponent(status.value)}`; };
       document.querySelectorAll('.kyc-verify').forEach((btn) => {
         btn.addEventListener('click', async () => {
           const id = btn.dataset.id;
@@ -369,7 +371,7 @@ const initPaymentsSection = () => {
       renderPayments(items);
       const container = document.getElementById('paymentsPagination');
       if (container) container.innerHTML = `<div class="small-muted">Page ${currentPage} of ${Math.ceil(total / pageSize) || 1}</div>`;
-      exportBtn.onclick = () => { window.location.href = `/api/transactions?export=csv&q=${encodeURIComponent(search.value.trim())}&type=${encodeURIComponent(type.value)}`; };
+      exportBtn.onclick = () => { window.location.href = `${apiBase}/transactions?export=csv&q=${encodeURIComponent(search.value.trim())}&type=${encodeURIComponent(type.value)}`; };
     } catch (err) { console.error(err); }
   };
 

@@ -33,6 +33,10 @@ const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 
 const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
 
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''
+  : 'https://ghor-backend.onrender.com';
+
 const getCookie = (name) => {
   const match = document.cookie.match(new RegExp(`(^|; )${name}=([^;]+)`));
   return match ? decodeURIComponent(match[2]) : null;
@@ -44,7 +48,7 @@ const redirectToDashboard = () => {
 
 const ensureCsrfToken = async () => {
   if (!getCookie('XSRF-TOKEN')) {
-    await fetch('/api/csrf-token', {
+    await fetch(`${API_BASE_URL}/api/csrf-token`, {
       method: 'GET',
       credentials: 'include'
     });
@@ -52,7 +56,7 @@ const ensureCsrfToken = async () => {
 };
 
 const requestAuth = async (mode, payload) => {
-  const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
+  const url = API_BASE_URL + (mode === 'signup' ? '/api/auth/signup' : '/api/auth/login');
   await ensureCsrfToken();
   const csrfToken = getCookie('XSRF-TOKEN');
   const headers = {

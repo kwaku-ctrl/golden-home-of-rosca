@@ -1,5 +1,7 @@
 const AUTH_TOKEN_KEY = 'ghor_jwt_token';
-const apiBase = '/api';
+const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? '/api'
+  : 'https://ghor-backend.onrender.com/api';
 
 const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 const setToken = (token) => localStorage.setItem(AUTH_TOKEN_KEY, token);
