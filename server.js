@@ -33,7 +33,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
-const CLIENT_URL = (process.env.CLIENT_URL || 'http://localhost:5500').replace(/\/$/, '');
+const CLIENT_URL = (process.env.CLIENT_URL || 'http://localhost:5500').trim().replace(/\/$/, '');
+console.log('Normalized CLIENT_URL:', CLIENT_URL);
 
 connectDatabase();
 
