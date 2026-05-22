@@ -43,6 +43,7 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "blob:"],
+        scriptSrcElem: ["'self'", "'unsafe-inline'", "blob:"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:'],
         connectSrc: ["'self'", CLIENT_URL, 'ws:', 'https://ghor-backend.onrender.com']

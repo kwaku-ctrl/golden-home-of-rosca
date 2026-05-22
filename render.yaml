@@ -15,8 +15,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CLIENT_URL
-        scope: BUILD
-        value: https://yourdomain.com
+        value: https://ghor-backend.onrender.com
 
 databases:
   - name: ghor-mongo
