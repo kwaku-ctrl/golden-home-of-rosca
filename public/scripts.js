@@ -223,35 +223,11 @@ const initAuthForm = () => {
   const form = document.getElementById('authForm');
   if (!form) return;
 
-  const setLoading = (loading) => {
-    const button = form.querySelector('.auth-submit');
-    if (!button) return;
-    button.disabled = loading;
-    button.textContent = loading ? 'Processing...' : 'Sign Up / Login';
-  };
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const password = document.getElementById('password').value;
-
-    if (!email || !password) {
-      return createToast('Please enter email and password.');
-    }
-
-    setLoading(true);
-    try {
-      if (name && phone) {
-        createToast('Signup flow not live in demo.');
-      } else {
-        createToast('Login flow not live in demo.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  });
+  // Note: authentication form handling has been moved to `public/auth.js`.
+  // This placeholder intentionally does not attach a submit handler so the
+  // dedicated auth script can process login/signup requests and show
+  // server-side error messages. Keeping this function ensures other
+  // page-level auth behaviors (like showing the auth section) remain intact.
 };
 
 const initApplicationWizard = () => {
