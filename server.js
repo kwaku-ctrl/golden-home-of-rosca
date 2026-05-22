@@ -32,6 +32,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5500';
 
 connectDatabase();
@@ -63,12 +64,12 @@ app.use(hpp());
 app.use(compression());
 
 // CSRF protection for state-changing requests. Token is stored in a cookie.
-app.use(csurf({ cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' } }));
+app.use(csurf({ cookie: { httpOnly: true, sameSite: isProduction ? 'none' : 'lax', secure: isProduction } }));
 app.use((req, res, next) => {
   res.cookie('XSRF-TOKEN', req.csrfToken(), {
     httpOnly: false,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction
   });
   next();
 });

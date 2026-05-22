@@ -42,8 +42,18 @@ const redirectToDashboard = () => {
   window.location.href = 'dashboard.html';
 };
 
+const ensureCsrfToken = async () => {
+  if (!getCookie('XSRF-TOKEN')) {
+    await fetch('/api/csrf-token', {
+      method: 'GET',
+      credentials: 'include'
+    });
+  }
+};
+
 const requestAuth = async (mode, payload) => {
   const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
+  await ensureCsrfToken();
   const csrfToken = getCookie('XSRF-TOKEN');
   const headers = {
     'Content-Type': 'application/json'
