@@ -5,10 +5,24 @@ const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 const setToken = (token) => localStorage.setItem(AUTH_TOKEN_KEY, token);
 const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
 
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp(`(^|; )${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[2]) : null;
+};
+
 const sendRequest = async (path, options = {}) => {
   const token = getToken();
   const headers = { ...(options.headers || {}) };
   if (token) headers.Authorization = `Bearer ${token}`;
+
+  const method = (options.method || 'GET').toUpperCase();
+  if (method !== 'GET') {
+    const csrfToken = getCookie('XSRF-TOKEN');
+    if (csrfToken) {
+      headers['X-XSRF-TOKEN'] = csrfToken;
+    }
+  }
+
   const response = await fetch(`${apiBase}${path}`, {
     credentials: 'include',
     ...options,

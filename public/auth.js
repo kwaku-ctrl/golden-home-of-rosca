@@ -33,15 +33,29 @@ const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 
 const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
 
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp(`(^|; )${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[2]) : null;
+};
+
 const redirectToDashboard = () => {
   window.location.href = 'dashboard.html';
 };
 
 const requestAuth = async (mode, payload) => {
   const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
+  const csrfToken = getCookie('XSRF-TOKEN');
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (csrfToken) {
+    headers['X-XSRF-TOKEN'] = csrfToken;
+  }
+
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(payload),
     credentials: 'include'
   });
