@@ -42,10 +42,10 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "blob:"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'", CLIENT_URL, 'ws:']
+        connectSrc: ["'self'", CLIENT_URL, 'ws:', 'https://ghor-backend.onrender.com']
       }
     }
   })

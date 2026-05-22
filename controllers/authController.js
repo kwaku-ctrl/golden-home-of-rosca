@@ -5,7 +5,11 @@ const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'your_jwt_secret_here') {
+    throw new Error('JWT_SECRET is not properly configured in environment variables');
+  }
+  return jwt.sign({ id }, secret, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
 };
