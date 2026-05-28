@@ -1,6 +1,8 @@
-﻿const express = require('express');
+﻿const dotenv = require('dotenv');
+dotenv.config();
+
+const express = require('express');
 const path = require('path');
-const dotenv = require('dotenv');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const csurf = require('csurf');
@@ -27,8 +29,6 @@ const blogRoutes = require('./routes/blogRoutes');
 const testimonialRoutes = require('./routes/testimonialRoutes');
 const repaymentRoutes = require('./routes/repaymentRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
