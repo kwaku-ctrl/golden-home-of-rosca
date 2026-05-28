@@ -61,16 +61,20 @@ const renderSavingsList = (items = []) => {
   const container = document.getElementById('savingsList');
   if (!container) return;
   if (!items.length) {
-    container.innerHTML = '<p>No savings accounts found. Save and grow your balance here.</p>';
+    container.innerHTML = '<div class="empty-state" style="padding: 1rem;">No savings accounts found. Create one to get started.</div>';
     return;
   }
   container.innerHTML = items.map((saving) => `
-    <article class="info-card glass-card">
-      <h3>${saving.accountType || 'Savings account'}</h3>
-      <p>${saving.accountNumber || 'Account #'}</p>
-      <p><strong>${formatCurrency(saving.balance)}</strong></p>
-      <span class="badge badge-success">${saving.status || 'Active'}</span>
-    </article>
+    <div class="card" style="margin-bottom: 1rem;">
+      <div class="card-header">
+        <div>
+          <div class="card-label">${saving.accountType || 'Savings account'}</div>
+          <div class="card-value" style="font-size: 1.5rem;">${formatCurrency(saving.balance)}</div>
+        </div>
+        <span class="card-badge badge-success">${saving.status || 'Active'}</span>
+      </div>
+      <div class="card-subtext">Account: ${saving.accountNumber || '#' + saving._id?.slice(0, 8) || 'N/A'}</div>
+    </div>
   `).join('');
 };
 
@@ -80,7 +84,7 @@ const renderLoans = (items = []) => {
   const body = table.querySelector('tbody');
   if (!body) return;
   if (!items.length) {
-    body.innerHTML = '<tr><td colspan="5">No loan records yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="empty-state">No loan history yet.</td></tr>';
     return;
   }
   body.innerHTML = items.map((loan) => `
@@ -88,7 +92,7 @@ const renderLoans = (items = []) => {
       <td>${loan.loanType || 'Loan'}</td>
       <td>${formatCurrency(loan.amount)}</td>
       <td>${loan.durationMonths || loan.duration || 'N/A'} months</td>
-      <td>${loan.status || 'Pending'}</td>
+      <td><span class="status-badge status-${loan.status?.toLowerCase() || 'pending'}">${loan.status || 'Pending'}</span></td>
       <td>${formatDate(loan.createdAt || loan.updatedAt)}</td>
     </tr>
   `).join('');
@@ -100,7 +104,7 @@ const renderTransactions = (items = []) => {
   const body = table.querySelector('tbody');
   if (!body) return;
   if (!items.length) {
-    body.innerHTML = '<tr><td colspan="5">No transactions available.</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="empty-state">No transactions yet. Start saving or apply for a loan to get started.</td></tr>';
     return;
   }
   body.innerHTML = items.map((tx) => `
@@ -108,8 +112,8 @@ const renderTransactions = (items = []) => {
       <td>${formatDate(tx.createdAt || tx.date)}</td>
       <td>${tx.type || tx.transactionType || 'Payment'}</td>
       <td>${formatCurrency(tx.amount)}</td>
-      <td>${tx.status || 'Completed'}</td>
-      <td><button class="btn btn-ghost receipt-btn" data-id="${tx._id || ''}">Download</button></td>
+      <td><span class="status-badge status-${tx.status?.toLowerCase() || 'completed'}">${tx.status || 'Completed'}</span></td>
+      <td><button class="btn btn-small btn-secondary receipt-btn" data-id="${tx._id || ''}">Download</button></td>
     </tr>
   `).join('');
 };
@@ -118,22 +122,61 @@ const renderNotifications = (items = []) => {
   const container = document.getElementById('notificationList');
   if (!container) return;
   if (!items.length) {
-    container.innerHTML = '<p>No notifications at this time.</p>';
+    container.innerHTML = '<p class="empty-state">No notifications at this time.</p>';
     return;
   }
+  
+  // Update badge
+  const badge = document.getElementById('notificationBadge');
+  if (badge) {
+    const unreadCount = items.filter(n => n.status === 'unread').length;
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
   container.innerHTML = items.map((note) => `
-    <article class="notification-card glass-card ${note.status === 'unread' ? 'notification-unread' : ''}">
-      <p>${note.message || note.title || 'Notification update'}</p>
-      <span>${formatDate(note.createdAt || note.date)}</span>
-    </article>
+    <div class="card" style="margin-bottom: 1rem;">
+      <div class="card-header">
+        <div>
+          <div class="card-label">${note.title || 'Notification'}</div>
+          <div class="card-subtext">${note.message || note.title || 'Notification update'}</div>
+        </div>
+        ${note.status === 'unread' ? '<span class="card-badge badge-warning">New</span>' : ''}
+      </div>
+      <div class="card-subtext">${formatDate(note.createdAt || note.date)}</div>
+    </div>
   `).join('');
 };
 
-const renderOverview = (summary) => {
-  document.getElementById('savingsBalance').textContent = formatCurrency(summary.balance);
-  document.getElementById('openLoans').textContent = summary.loans || 0;
-  document.getElementById('transactionCount').textContent = summary.transactions || 0;
-  document.getElementById('notificationCount').textContent = summary.notifications || 0;
+const renderOverview = (summary, allLoans = []) => {
+  const savingsEl = document.getElementById('savingsBalance');
+  const activeLoanEl = document.getElementById('activeLoanCount');
+  const totalLoanEl = document.getElementById('totalLoanAmount');
+  const nextRepaymentAmountEl = document.getElementById('nextRepaymentAmount');
+  const nextRepaymentDateEl = document.getElementById('nextRepaymentDate');
+  
+  if (savingsEl) savingsEl.textContent = formatCurrency(summary.balance);
+  if (activeLoanEl) activeLoanEl.textContent = summary.loans || 0;
+  
+  const totalLoanAmount = allLoans.reduce((sum, loan) => {
+    if (loan.status === 'approved' || loan.status === 'active') {
+      return sum + Number(loan.amount || 0);
+    }
+    return sum;
+  }, 0);
+  
+  if (totalLoanEl) totalLoanEl.textContent = formatCurrency(totalLoanAmount);
+  
+  const activeLoan = allLoans.find(l => l.status === 'approved' || l.status === 'active');
+  if (activeLoan && nextRepaymentAmountEl && nextRepaymentDateEl) {
+    const monthlyPayment = activeLoan.amount / (activeLoan.durationMonths || 1);
+    nextRepaymentAmountEl.textContent = formatCurrency(monthlyPayment);
+    nextRepaymentDateEl.textContent = activeLoan.nextRepaymentDate ? formatDate(activeLoan.nextRepaymentDate) : 'TBD';
+  }
 };
 
 const updateChart = (values = []) => {
@@ -152,8 +195,13 @@ const updateChart = (values = []) => {
 
 const renderProfile = (user) => {
   if (!user) return;
-  document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.fullName || user.name || 'Member'}`;
-  document.getElementById('dashboardSubtitle').textContent = `Email: ${user.email || 'Not available'} — Role: ${user.role || 'member'}`;
+  const firstName = (user.fullName || user.name || 'Member').split(' ')[0];
+  const initials = firstName.charAt(0).toUpperCase();
+  
+  document.getElementById('welcomeName').textContent = firstName;
+  document.getElementById('profileNameHeader').textContent = firstName;
+  document.getElementById('profileAvatar').textContent = initials;
+  
   document.getElementById('profileName').value = user.fullName || user.name || '';
   document.getElementById('profileEmail').value = user.email || '';
   document.getElementById('profilePhone').value = user.phoneNumber || user.phone || '';
@@ -329,7 +377,6 @@ const handleProfileSubmit = async (event) => {
 
 const initDashboardEvents = (transactions) => {
   const logoutBtn = document.getElementById('logoutBtn');
-  const refreshBtn = document.getElementById('refreshBtn');
   const loanForm = document.getElementById('loanForm');
   const uploadForm = document.getElementById('uploadForm');
   const profileForm = document.getElementById('profileForm');
@@ -341,15 +388,28 @@ const initDashboardEvents = (transactions) => {
     clearToken();
     window.location.href = 'login.html';
   });
-  refreshBtn?.addEventListener('click', loadDashboard);
+  
   loanForm?.addEventListener('submit', handleLoanSubmit);
   uploadForm?.addEventListener('submit', handleUploadSubmit);
   const createSavingForm = document.getElementById('createSavingForm');
   createSavingForm?.addEventListener('submit', handleCreateSaving);
   profileForm?.addEventListener('submit', handleProfileSubmit);
-  applyButton?.addEventListener('click', () => document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth' }));
-  uploadButton?.addEventListener('click', () => document.getElementById('upload')?.scrollIntoView({ behavior: 'smooth' }));
-  profileButton?.addEventListener('click', () => document.getElementById('settings')?.scrollIntoView({ behavior: 'smooth' }));
+  
+  applyButton?.addEventListener('click', () => {
+    document.getElementById('applySection').style.display = 'block';
+    document.getElementById('applySection').scrollIntoView({ behavior: 'smooth' });
+  });
+  
+  uploadButton?.addEventListener('click', () => {
+    document.getElementById('uploadSection').style.display = 'block';
+    document.getElementById('uploadSection').scrollIntoView({ behavior: 'smooth' });
+  });
+  
+  profileButton?.addEventListener('click', () => {
+    document.getElementById('profileSection').style.display = 'block';
+    document.getElementById('profileSection').scrollIntoView({ behavior: 'smooth' });
+  });
+  
   attachReceiptHandlers(transactions);
 };
 
@@ -364,26 +424,22 @@ const loadDashboard = async () => {
     ]);
 
     renderProfile(auth.data || auth.user || auth);
-    renderSavingsList(Array.isArray(savings.data?.savings || savings.savings) ? (savings.data?.savings || savings.savings) : []);
-    renderLoans(Array.isArray(loans.data?.loans || loans.loans) ? (loans.data?.loans || loans.loans) : []);
-    renderTransactions(Array.isArray(transactions.data?.transactions || transactions.transactions) ? (transactions.data?.transactions || transactions.transactions) : []);
-    renderNotifications(Array.isArray(notifications.data?.notifications || notifications.notifications) ? (notifications.data?.notifications || notifications.notifications) : []);
-
+    
     const savingsItems = Array.isArray(savings.data?.savings || savings.savings) ? (savings.data?.savings || savings.savings) : [];
     const loanList = Array.isArray(loans.data?.loans || loans.loans) ? (loans.data?.loans || loans.loans) : [];
     const transactionList = Array.isArray(transactions.data?.transactions || transactions.transactions) ? (transactions.data?.transactions || transactions.transactions) : [];
     const notificationList = Array.isArray(notifications.data?.notifications || notifications.notifications) ? (notifications.data?.notifications || notifications.notifications) : [];
+    
     const loanCount = loanList.length;
     const transactionCount = transactionList.length;
     const notificationCount = notificationList.length;
     const balance = savingsItems.reduce((sum, item) => sum + Number(item.balance || 0), 0);
 
-    renderOverview({ balance, loans: loanCount, transactions: transactionCount, notifications: notificationCount });
+    renderOverview({ balance, loans: loanCount, transactions: transactionCount, notifications: notificationCount }, loanList);
     renderSavingsList(savingsItems);
     renderLoans(loanList);
     renderTransactions(transactionList);
     renderNotifications(notificationList);
-    updateChart(savingsItems.map((item) => Number(item.balance || 0)).slice(-5));
     initDashboardEvents(transactionList);
   } catch (error) {
     showToast(error.message);
