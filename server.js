@@ -64,14 +64,25 @@ app.use(hpp());
 // Gzip compression for responses
 app.use(compression());
 
-// CSRF protection for state-changing requests. Token is stored in a cookie.
-app.use(csurf({ cookie: { httpOnly: true, sameSite: isProduction ? 'none' : 'lax', secure: isProduction } }));
+// CSRF protection for state-changing requests (skip for API routes, they use JWT)
+const csrfProtection = csurf({ cookie: { httpOnly: true, sameSite: isProduction ? 'none' : 'lax', secure: isProduction } });
+
 app.use((req, res, next) => {
-  res.cookie('XSRF-TOKEN', req.csrfToken(), {
-    httpOnly: false,
-    sameSite: isProduction ? 'none' : 'lax',
-    secure: isProduction
-  });
+  // Skip CSRF for /api routes (they use JWT authentication)
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  csrfProtection(req, res, next);
+});
+
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/')) {
+    res.cookie('XSRF-TOKEN', req.csrfToken(), {
+      httpOnly: false,
+      sameSite: isProduction ? 'none' : 'lax',
+      secure: isProduction
+    });
+  }
   next();
 });
 

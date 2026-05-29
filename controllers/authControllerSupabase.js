@@ -78,7 +78,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     .single();
 
   if (error) {
-    return next(new AppError(`Error creating user: ${error.message}`, 400));
+    console.error('Supabase insert error:', error);
+    return next(new AppError(`Error creating user: ${error.message || error}`, 400));
   }
 
   createSendToken(newUser, 201, res);
