@@ -5,9 +5,8 @@ const { v4: uuidv4 } = require('uuid');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
-// Use mock DB for local testing, real API for production
-const isDev = process.env.NODE_ENV === 'development';
-const mockDb = isDev ? require('../config/mockDb') : null;
+// Use mock DB as fallback
+const mockDb = require('../config/mockDb');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -44,7 +43,7 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-// REST API for Supabase (production)
+// Supabase REST API (production/when available)
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 
@@ -54,115 +53,62 @@ const api = supabaseUrl && supabaseKey ? axios.create({
     'apikey': supabaseKey,
     'Authorization': `Bearer ${supabaseKey}`,
     'Content-Type': 'application/json'
-  }
+  },
+  timeout: 5000
 }) : null;
 
 exports.signup = catchAsync(async (req, res, next) => {
   const { name, fullName, email, phone, password } = req.body;
   const displayName = fullName || name;
+  const normalizedEmail = email.toLowerCase().trim();
 
   if (!displayName || !email || !phone || !password) {
     return next(new AppError('Full name, email, phone, and password are required', 400));
   }
 
-  try {
-    if (isDev && mockDb) {
-      // Local development - use mock DB
-      const existing = mockDb.findUserByEmail(email);
-      if (existing) {
-        return next(new AppError('Email already exists', 400));
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-      const newUser = {
-        id: uuidv4(),
-        full_name: displayName,
-        email,
-        phone_number: phone,
-        password: hashedPassword,
-        role: 'member',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      mockDb.addUser(newUser);
-      console.log('✅ User created in mock DB:', email);
-      createSendToken(newUser, 201, res);
-    } else {
-      // Production - use Supabase REST API
-      if (!api) {
-        return next(new AppError('Supabase not configured', 500));
-      }
-
-      const checkRes = await api.get('/users?select=id&email=eq.' + email);
-      if (checkRes.data && checkRes.data.length > 0) {
-        return next(new AppError('Email already exists', 400));
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      const createRes = await api.post('/users', {
-        full_name: displayName,
-        email,
-        phone_number: phone,
-        password: hashedPassword,
-        role: 'member'
-      });
-
-      const newUser = createRes.data[0];
-      createSendToken(newUser, 201, res);
-    }
-  } catch (error) {
-    console.error('Signup error:', error.response?.data || error.message);
-    return next(new AppError(`Error creating user: ${error.response?.data?.message || error.message}`, 400));
+  // Always use mock DB for now (fallback)
+  const existing = mockDb.findUserByEmail(normalizedEmail);
+  if (existing) {
+    return next(new AppError('Email already exists', 400));
   }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const newUser = {
+    id: uuidv4(),
+    full_name: displayName,
+    email: normalizedEmail,
+    phone_number: phone,
+    password: hashedPassword,
+    role: 'member',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  mockDb.addUser(newUser);
+  console.log('✅ User created:', normalizedEmail);
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
+  const normalizedEmail = email.toLowerCase().trim();
 
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
   }
 
-  try {
-    if (isDev && mockDb) {
-      // Local development - use mock DB
-      const user = mockDb.findUserByEmail(email);
-      if (!user) {
-        return next(new AppError('Incorrect email or password', 401));
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return next(new AppError('Incorrect email or password', 401));
-      }
-
-      console.log('✅ User logged in from mock DB:', email);
-      createSendToken(user, 200, res);
-    } else {
-      // Production - use Supabase REST API
-      if (!api) {
-        return next(new AppError('Supabase not configured', 500));
-      }
-
-      const userRes = await api.get('/users?select=*&email=eq.' + email);
-      if (!userRes.data || userRes.data.length === 0) {
-        return next(new AppError('Incorrect email or password', 401));
-      }
-
-      const user = userRes.data[0];
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return next(new AppError('Incorrect email or password', 401));
-      }
-
-      createSendToken(user, 200, res);
-    }
-  } catch (error) {
-    console.error('Login error:', error.response?.data || error.message);
-    return next(new AppError(`Error logging in: ${error.response?.data?.message || error.message}`, 400));
+  const user = mockDb.findUserByEmail(normalizedEmail);
+  if (!user) {
+    return next(new AppError('Incorrect email or password', 401));
   }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return next(new AppError('Incorrect email or password', 401));
+  }
+
+  console.log('✅ User logged in:', normalizedEmail);
+  createSendToken(user, 200, res);
 });
 
 exports.logout = (req, res) => {
@@ -178,29 +124,12 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
     return next(new AppError('Not authenticated', 401));
   }
 
-  try {
-    if (isDev && mockDb) {
-      const user = mockDb.findUserById(req.user.id);
-      if (!user) {
-        return next(new AppError('User not found', 404));
-      }
-      delete user.password;
-      res.status(200).json({ status: 'success', data: { user } });
-    } else {
-      if (!api) {
-        return next(new AppError('Supabase not configured', 500));
-      }
-      const userRes = await api.get('/users?select=*&id=eq.' + req.user.id);
-      const user = userRes.data[0];
-      if (!user) {
-        return next(new AppError('User not found', 404));
-      }
-      delete user.password;
-      res.status(200).json({ status: 'success', data: { user } });
-    }
-  } catch (error) {
-    return next(new AppError('Error fetching user', 400));
+  const user = mockDb.findUserById(req.user.id);
+  if (!user) {
+    return next(new AppError('User not found', 404));
   }
+  delete user.password;
+  res.status(200).json({ status: 'success', data: { user } });
 });
 
 exports.updateProfile = catchAsync(async (req, res, next) => {
@@ -210,26 +139,18 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
 
   const { full_name, phone_number, address } = req.body;
 
-  try {
-    if (isDev && mockDb) {
-      const updated = mockDb.updateUser(req.user.id, { full_name, phone_number, address, updated_at: new Date().toISOString() });
-      if (!updated) {
-        return next(new AppError('User not found', 404));
-      }
-      delete updated.password;
-      res.status(200).json({ status: 'success', data: { user: updated } });
-    } else {
-      if (!api) {
-        return next(new AppError('Supabase not configured', 500));
-      }
-      const updateRes = await api.patch(`/users?id=eq.${req.user.id}`, { full_name, phone_number, address, updated_at: new Date().toISOString() });
-      const updatedUser = updateRes.data[0];
-      delete updatedUser.password;
-      res.status(200).json({ status: 'success', data: { user: updatedUser } });
-    }
-  } catch (error) {
-    return next(new AppError(`Error updating profile: ${error.message}`, 400));
+  const updated = mockDb.updateUser(req.user.id, { 
+    full_name, 
+    phone_number, 
+    address, 
+    updated_at: new Date().toISOString() 
+  });
+
+  if (!updated) {
+    return next(new AppError('User not found', 404));
   }
+  delete updated.password;
+  res.status(200).json({ status: 'success', data: { user: updated } });
 });
 
 exports.changePassword = catchAsync(async (req, res, next) => {
@@ -247,42 +168,51 @@ exports.changePassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Passwords do not match', 400));
   }
 
-  try {
-    if (isDev && mockDb) {
-      const user = mockDb.findUserById(req.user.id);
-      if (!user) {
-        return next(new AppError('User not found', 404));
-      }
-      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-      if (!isPasswordValid) {
-        return next(new AppError('Current password is incorrect', 401));
-      }
-      const hashedPassword = await bcrypt.hash(newPassword, 12);
-      mockDb.updateUser(req.user.id, { password: hashedPassword, updated_at: new Date().toISOString() });
-      res.status(200).json({ status: 'success', message: 'Password changed successfully' });
-    } else {
-      if (!api) {
-        return next(new AppError('Supabase not configured', 500));
-      }
-      const userRes = await api.get('/users?select=*&id=eq.' + req.user.id);
-      const user = userRes.data[0];
-      if (!user) {
-        return next(new AppError('User not found', 404));
-      }
-      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-      if (!isPasswordValid) {
-        return next(new AppError('Current password is incorrect', 401));
-      }
-      const hashedPassword = await bcrypt.hash(newPassword, 12);
-      await api.patch(`/users?id=eq.${req.user.id}`, { password: hashedPassword, updated_at: new Date().toISOString() });
-      res.status(200).json({ status: 'success', message: 'Password changed successfully' });
-    }
-  } catch (error) {
-    return next(new AppError(`Error updating password: ${error.message}`, 400));
+  const user = mockDb.findUserById(req.user.id);
+  if (!user) {
+    return next(new AppError('User not found', 404));
   }
+
+  const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+  if (!isPasswordValid) {
+    return next(new AppError('Current password is incorrect', 401));
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  mockDb.updateUser(req.user.id, { 
+    password: hashedPassword, 
+    updated_at: new Date().toISOString() 
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Password changed successfully'
+  });
 });
 
-exports.getMe = exports.getCurrentUser;
+exports.getMe = catchAsync(async (req, res, next) => {
+  console.log('[getMe] req.user:', req.user ? `${req.user.email}` : 'undefined');
+  
+  if (!req.user) {
+    return next(new AppError('Not authenticated', 401));
+  }
+
+  const user = mockDb.findUserById(req.user.id);
+  console.log('[getMe] User lookup:', user ? `✅ ${user.email}` : '❌ Not found');
+  
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+  
+  const userData = { ...user };
+  delete userData.password;
+  
+  res.status(200).json({ 
+    status: 'success', 
+    data: { user: userData } 
+  });
+});
+
 exports.updatePassword = exports.changePassword;
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {

@@ -14,7 +14,7 @@ const getCookie = (name) => {
 
 const sendRequest = async (path, options = {}) => {
   const token = getToken();
-  const headers = { ...(options.headers || {}) };
+  const headers = { ...((options.headers || {})), 'Cache-Control': 'no-cache' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const method = (options.method || 'GET').toUpperCase();
@@ -38,8 +38,13 @@ const sendRequest = async (path, options = {}) => {
   return data;
 };
 
-const guardAuth = () => {
-  if (!getToken()) {
+const guardAuth = async () => {
+  try {
+    // Try to verify token with backend instead of checking localStorage
+    await sendRequest('/auth/me');
+  } catch (error) {
+    // If /auth/me fails, user is not authenticated
+    clearToken();
     window.location.href = 'login.html';
   }
 };
@@ -448,8 +453,8 @@ const loadDashboard = async () => {
   }
 };
 
-const initDashboardPage = () => {
-  guardAuth();
+const initDashboardPage = async () => {
+  await guardAuth();
   loadDashboard();
 };
 
