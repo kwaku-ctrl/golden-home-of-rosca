@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const { findUserByEmail, findUserById, createUser, updateUser } = require('../utils/localUserStore');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -40,6 +41,95 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
+const isSupabaseUnavailableError = (error) => {
+  const message = error?.message || error?.details || '';
+  return Boolean(error) && /fetch failed|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|socket hang up|EAI_AGAIN|network/i.test(message);
+};
+
+const getUserByEmail = async (email) => {
+  if (!supabase?.from) {
+    return { data: await findUserByEmail(email), error: null };
+  }
+
+  try {
+    const result = await supabase.from('users').select('*').eq('email', email).single();
+    if (result?.error && isSupabaseUnavailableError(result.error)) {
+      return { data: await findUserByEmail(email), error: null };
+    }
+    return result;
+  } catch (error) {
+    if (isSupabaseUnavailableError(error)) {
+      return { data: await findUserByEmail(email), error: null };
+    }
+    throw error;
+  }
+};
+
+const getUserById = async (id) => {
+  if (!supabase?.from) {
+    return { data: await findUserById(id), error: null };
+  }
+
+  try {
+    const result = await supabase.from('users').select('*').eq('id', id).single();
+    if (result?.error && isSupabaseUnavailableError(result.error)) {
+      return { data: await findUserById(id), error: null };
+    }
+    return result;
+  } catch (error) {
+    if (isSupabaseUnavailableError(error)) {
+      return { data: await findUserById(id), error: null };
+    }
+    throw error;
+  }
+};
+
+const createUserRecord = async (userPayload) => {
+  if (!supabase?.from) {
+    return createUser(userPayload);
+  }
+
+  try {
+    const { data, error } = await supabase.from('users').insert([userPayload]).select().single();
+    if (error) {
+      if (isSupabaseUnavailableError(error)) {
+        return createUser(userPayload);
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    if (isSupabaseUnavailableError(error)) {
+      return createUser(userPayload);
+    }
+    throw error;
+  }
+};
+
+const updateUserRecord = async (id, updates) => {
+  if (!supabase?.from) {
+    return updateUser(id, updates);
+  }
+
+  try {
+    const { data, error } = await supabase.from('users').update(updates).eq('id', id).select().single();
+    if (error) {
+      if (isSupabaseUnavailableError(error)) {
+        return updateUser(id, updates);
+      }
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    if (isSupabaseUnavailableError(error)) {
+      return updateUser(id, updates);
+    }
+    throw error;
+  }
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const { name, fullName, email, phone, password } = req.body;
   const displayName = fullName || name;
@@ -49,11 +139,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   }
 
   // Check if user already exists
-  const { data: existingUser } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', email)
-    .single();
+  const { data: existingUser } = await getUserByEmail(email);
 
   if (existingUser) {
     return next(new AppError('Email already exists', 400));
@@ -62,23 +148,17 @@ exports.signup = catchAsync(async (req, res, next) => {
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  // Create user in Supabase
-  const { data: newUser, error } = await supabase
-    .from('users')
-    .insert([
-      {
-        full_name: displayName,
-        email,
-        phone_number: phone,
-        password: hashedPassword,
-        role: 'member'
-      }
-    ])
-    .select()
-    .single();
+  // Create user in Supabase or local fallback store
+  const newUser = await createUserRecord({
+    full_name: displayName,
+    email,
+    phone_number: phone,
+    password: hashedPassword,
+    role: 'member'
+  });
 
-  if (error) {
-    return next(new AppError(`Error creating user: ${error.message}`, 400));
+  if (!newUser) {
+    return next(new AppError('Error creating user', 400));
   }
 
   createSendToken(newUser, 201, res);
@@ -92,11 +172,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // Fetch user with password field
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .single();
+  const { data: user, error } = await getUserByEmail(email);
 
   if (error || !user) {
     return next(new AppError('Incorrect email or password', 401));
@@ -126,11 +202,7 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
     return next(new AppError('Not authenticated', 401));
   }
 
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', req.user.id)
-    .single();
+  const { data: user, error } = await getUserById(req.user.id);
 
   if (error || !user) {
     return next(new AppError('User not found', 404));
@@ -154,20 +226,15 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
 
   const { full_name, phone_number, address } = req.body;
 
-  const { data: updatedUser, error } = await supabase
-    .from('users')
-    .update({
-      full_name,
-      phone_number,
-      address,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', req.user.id)
-    .select()
-    .single();
+  const updatedUser = await updateUserRecord(req.user.id, {
+    full_name,
+    phone_number,
+    address,
+    updated_at: new Date().toISOString()
+  });
 
-  if (error) {
-    return next(new AppError(`Error updating profile: ${error.message}`, 400));
+  if (!updatedUser) {
+    return next(new AppError('Error updating profile', 400));
   }
 
   delete updatedUser.password;
@@ -196,11 +263,7 @@ exports.changePassword = catchAsync(async (req, res, next) => {
   }
 
   // Fetch user with password
-  const { data: user, error: fetchError } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', req.user.id)
-    .single();
+  const { data: user, error: fetchError } = await getUserById(req.user.id);
 
   if (fetchError || !user) {
     return next(new AppError('User not found', 404));
@@ -217,16 +280,13 @@ exports.changePassword = catchAsync(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(newPassword, 12);
 
   // Update password
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({
-      password: hashedPassword,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', req.user.id);
+  const updatedUser = await updateUserRecord(req.user.id, {
+    password: hashedPassword,
+    updated_at: new Date().toISOString()
+  });
 
-  if (updateError) {
-    return next(new AppError(`Error updating password: ${updateError.message}`, 400));
+  if (!updatedUser) {
+    return next(new AppError('Error updating password', 400));
   }
 
   res.status(200).json({

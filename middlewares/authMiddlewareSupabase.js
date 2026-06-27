@@ -2,6 +2,12 @@ const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const { findUserById } = require('../utils/localUserStore');
+
+const isSupabaseUnavailableError = (error) => {
+  const message = error?.message || error?.details || '';
+  return Boolean(error) && /fetch failed|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|socket hang up|EAI_AGAIN|network/i.test(message);
+};
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
@@ -22,13 +28,24 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('Invalid token. Please log in again.', 401));
   }
 
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', decoded.id)
-    .single();
+  let user = null;
+  let error = null;
 
-  if (error || !user) {
+  if (supabase?.from) {
+    try {
+      const response = await supabase.from('users').select('*').eq('id', decoded.id).single();
+      user = response?.data;
+      error = response?.error;
+    } catch (supabaseError) {
+      error = supabaseError;
+    }
+  }
+
+  if (!user || (error && isSupabaseUnavailableError(error))) {
+    user = await findUserById(decoded.id);
+  }
+
+  if (!user) {
     return next(new AppError('The user associated with this token no longer exists.', 401));
   }
 
