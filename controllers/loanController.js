@@ -1,6 +1,7 @@
-const Loan = require('../models/loanModel');
+const db = require('../utils/supabaseDatabase');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const { streamCursorAsCSV } = require('../utils/csvStream');
 
 exports.createLoan = catchAsync(async (req, res, next) => {
   const { amount, durationMonths, termMonths, interestRate, purpose, loanType } = req.body;
@@ -8,77 +9,85 @@ exports.createLoan = catchAsync(async (req, res, next) => {
   if (!amount || !duration || !interestRate) {
     return next(new AppError('Amount, duration, and interest rate are required', 400));
   }
-  const loan = await Loan.create({
-    user: req.user.id,
-    loanType: loanType || 'personal',
-    amount,
-    durationMonths: duration,
-    interestRate,
-    purpose
-  });
-  res.status(201).json({ status: 'success', data: { loan } });
+  try {
+    const loan = await db.createLoan({
+      user: req.user.id,
+      loan_type: loanType || 'personal',
+      amount,
+      duration_months: duration,
+      interest_rate: interestRate,
+      purpose
+    });
+    res.status(201).json({ status: 'success', data: { loan } });
+  } catch (error) {
+    return next(new AppError('Failed to create loan', 500));
+  }
 });
 
-const { streamCursorAsCSV } = require('../utils/csvStream');
-
-exports.getLoans = catchAsync(async (req, res) => {
+exports.getLoans = catchAsync(async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(200, parseInt(req.query.limit, 10) || 20);
-    const skip = (page - 1) * limit;
-    const q = req.query.q;
     const status = req.query.status;
-    const filter = req.user.role === 'member' ? { user: req.user.id } : {};
-    if (status) filter.status = status;
-    if (q) {
-      const re = new RegExp(q, 'i');
-      filter.$or = [{ purpose: re }, { loanType: re }, { 'user.fullName': re }];
-    }
+    const filters = req.user.role === 'member' ? { user: req.user.id } : {};
+    if (status) filters.status = status;
 
     if (req.query.export === 'csv') {
-      const keys = ['_id', 'user', 'amount', 'durationMonths', 'interestRate', 'status', 'createdAt'];
-      const cursor = Loan.find(filter).populate('user', 'fullName email').sort({ createdAt: -1 }).cursor();
+      const keys = ['id', 'user', 'amount', 'duration_months', 'interest_rate', 'status', 'created_at'];
+      const loans = await db.getLoansByUser(req.user.id, filters);
       res.attachment('loans.csv');
-      return streamCursorAsCSV(res, cursor, keys, (r) => ({
-        _id: r._id,
-        user: r.user?.fullName || r.user?.email || '',
+      return streamCursorAsCSV(res, loans, keys, (r) => ({
+        id: r.id,
+        user: r.user,
         amount: r.amount,
-        durationMonths: r.durationMonths,
-        interestRate: r.interestRate,
+        duration_months: r.duration_months,
+        interest_rate: r.interest_rate,
         status: r.status,
-        createdAt: r.createdAt
+        created_at: r.created_at
       }));
     }
 
-    const total = await Loan.countDocuments(filter);
-    const loans = await Loan.find(filter).populate('user', 'fullName email').sort({ createdAt: -1 }).skip(skip).limit(limit);
-    res.status(200).json({ status: 'success', results: loans.length, page, total, data: { loans } });
+    const paginatedResult = await db.paginatedQuery('loans', filters, page, limit);
+    res.status(200).json({
+      status: 'success',
+      results: paginatedResult.data.length,
+      page: paginatedResult.page,
+      total: paginatedResult.total,
+      data: { loans: paginatedResult.data }
+    });
   } catch (error) {
-    // Return empty results if database is unavailable
     res.status(200).json({ status: 'success', results: 0, page: 1, total: 0, data: { loans: [] } });
   }
 });
 
 exports.getLoan = catchAsync(async (req, res, next) => {
-  const loan = await Loan.findById(req.params.id);
-  if (!loan) return next(new AppError('Loan not found', 404));
-  if (req.user.role === 'member' && loan.user.toString() !== req.user.id) {
-    return next(new AppError('Not authorized to access this loan', 403));
+  try {
+    const loan = await db.getLoanById(req.params.id);
+    if (!loan) return next(new AppError('Loan not found', 404));
+    if (req.user.role === 'member' && loan.user !== req.user.id) {
+      return next(new AppError('Not authorized to access this loan', 403));
+    }
+    res.status(200).json({ status: 'success', data: { loan } });
+  } catch (error) {
+    return next(new AppError('Failed to fetch loan', 500));
   }
-  res.status(200).json({ status: 'success', data: { loan } });
 });
 
 exports.updateLoan = catchAsync(async (req, res, next) => {
-  const updates = req.body;
-  const loan = await Loan.findById(req.params.id);
-  if (!loan) return next(new AppError('Loan not found', 404));
-  Object.assign(loan, updates);
-  await loan.save();
-  res.status(200).json({ status: 'success', data: { loan } });
+  try {
+    const loan = await db.updateLoan(req.params.id, req.body);
+    if (!loan) return next(new AppError('Loan not found', 404));
+    res.status(200).json({ status: 'success', data: { loan } });
+  } catch (error) {
+    return next(new AppError('Failed to update loan', 500));
+  }
 });
 
 exports.deleteLoan = catchAsync(async (req, res, next) => {
-  const loan = await Loan.findByIdAndDelete(req.params.id);
-  if (!loan) return next(new AppError('Loan not found', 404));
-  res.status(204).json({ status: 'success', data: null });
+  try {
+    await db.deleteLoan(req.params.id);
+    res.status(204).json({ status: 'success', data: null });
+  } catch (error) {
+    return next(new AppError('Failed to delete loan', 500));
+  }
 });

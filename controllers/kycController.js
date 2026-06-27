@@ -1,6 +1,7 @@
-const Kyc = require('../models/kycModel');
+const db = require('../utils/supabaseDatabase');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const { streamCursorAsCSV } = require('../utils/csvStream');
 
 exports.uploadKyc = catchAsync(async (req, res, next) => {
   if (!req.file) {
@@ -12,66 +13,78 @@ exports.uploadKyc = catchAsync(async (req, res, next) => {
     return next(new AppError('Document type is required', 400));
   }
 
-  const kyc = await Kyc.create({
-    user: req.user._id,
-    documentType,
-    filePath: req.file.path
-  });
+  try {
+    const kyc = await db.createKyc({
+      user: req.user.id,
+      document_type: documentType,
+      file_path: req.file.path
+    });
 
-  res.status(201).json({ status: 'success', data: { kyc } });
+    res.status(201).json({ status: 'success', data: { kyc } });
+  } catch (error) {
+    return next(new AppError('Failed to upload KYC document', 500));
+  }
 });
 
-const { streamCursorAsCSV } = require('../utils/csvStream');
+exports.getKycDocuments = catchAsync(async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(200, parseInt(req.query.limit, 10) || 20);
+    const status = req.query.status;
+    const filters = req.user.role === 'member' ? { user: req.user.id } : {};
+    if (status) filters.status = status;
 
-exports.getKycDocuments = catchAsync(async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-  const limit = Math.min(200, parseInt(req.query.limit, 10) || 20);
-  const skip = (page - 1) * limit;
-  const q = req.query.q;
-  const status = req.query.status;
-  const filter = req.user.role === 'member' ? { user: req.user._id } : {};
-  if (status) filter.status = status;
-  if (q) {
-    const re = new RegExp(q, 'i');
-    filter.$or = [{ documentType: re }, { notes: re }];
+    if (req.query.export === 'csv') {
+      const keys = ['id', 'user', 'document_type', 'status', 'file_path', 'created_at'];
+      const kycs = await db.getKycByUser(req.user.id);
+      res.attachment('kyc.csv');
+      return streamCursorAsCSV(res, kycs, keys, (r) => ({
+        id: r.id,
+        user: r.user,
+        document_type: r.document_type,
+        status: r.status,
+        file_path: r.file_path,
+        created_at: r.created_at
+      }));
+    }
+
+    const paginatedResult = await db.paginatedQuery('kyc_documents', filters, page, limit);
+    res.status(200).json({
+      status: 'success',
+      results: paginatedResult.data.length,
+      page: paginatedResult.page,
+      total: paginatedResult.total,
+      data: { kycs: paginatedResult.data }
+    });
+  } catch (error) {
+    return next(new AppError('Failed to fetch KYC documents', 500));
   }
-
-  if (req.query.export === 'csv') {
-    const keys = ['_id', 'user', 'documentType', 'status', 'filePath', 'createdAt'];
-    const cursor = Kyc.find(filter).populate('user', 'fullName email').sort({ createdAt: -1 }).cursor();
-    res.attachment('kyc.csv');
-    return streamCursorAsCSV(res, cursor, keys, (r) => ({
-      _id: r._id,
-      user: r.user?.fullName || r.user?.email || '',
-      documentType: r.documentType,
-      status: r.status,
-      filePath: r.filePath,
-      createdAt: r.createdAt
-    }));
-  }
-
-  const total = await Kyc.countDocuments(filter);
-  const kycs = await Kyc.find(filter).populate('user', 'fullName email').sort({ createdAt: -1 }).skip(skip).limit(limit);
-  res.status(200).json({ status: 'success', results: kycs.length, page, total, data: { kycs } });
 });
 
 exports.updateKycStatus = catchAsync(async (req, res, next) => {
   const { status, notes } = req.body;
-  const kyc = await Kyc.findById(req.params.id);
-  if (!kyc) return next(new AppError('KYC document not found', 404));
+  try {
+    const updates = {};
+    if (status) updates.status = status;
+    if (notes) updates.notes = notes;
+    if (status === 'verified' || status === 'rejected') {
+      updates.reviewed_at = new Date().toISOString();
+    }
 
-  if (status) kyc.status = status;
-  if (notes) kyc.notes = notes;
-  if (status === 'verified' || status === 'rejected') {
-    kyc.reviewedAt = Date.now();
+    const kyc = await db.updateKyc(req.params.id, updates);
+    if (!kyc) return next(new AppError('KYC document not found', 404));
+
+    res.status(200).json({ status: 'success', data: { kyc } });
+  } catch (error) {
+    return next(new AppError('Failed to update KYC document', 500));
   }
-
-  await kyc.save();
-  res.status(200).json({ status: 'success', data: { kyc } });
 });
 
 exports.deleteKyc = catchAsync(async (req, res, next) => {
-  const kyc = await Kyc.findByIdAndDelete(req.params.id);
-  if (!kyc) return next(new AppError('KYC document not found', 404));
-  res.status(204).json({ status: 'success', data: null });
+  try {
+    await db.deleteKyc(req.params.id);
+    res.status(204).json({ status: 'success', data: null });
+  } catch (error) {
+    return next(new AppError('Failed to delete KYC document', 500));
+  }
 });

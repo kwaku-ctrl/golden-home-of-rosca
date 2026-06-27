@@ -1,6 +1,7 @@
-const Transaction = require('../models/transactionModel');
+const db = require('../utils/supabaseDatabase');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const { streamCursorAsCSV } = require('../utils/csvStream');
 
 const generateReference = () => `txn_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
@@ -9,70 +10,77 @@ exports.createTransaction = catchAsync(async (req, res, next) => {
   if (!type || !amount) {
     return next(new AppError('Transaction type and amount are required', 400));
   }
-  const transaction = await Transaction.create({
-    user: req.user.id,
-    type,
-    amount,
-    currency: currency || 'GHS',
-    meta: meta || {},
-    reference: generateReference(),
-    status: 'completed'
-  });
-  res.status(201).json({ status: 'success', data: { transaction } });
+  try {
+    const transaction = await db.createTransaction({
+      user: req.user.id,
+      type,
+      amount,
+      currency: currency || 'GHS',
+      meta: meta || {},
+      reference: generateReference(),
+      status: 'completed'
+    });
+    res.status(201).json({ status: 'success', data: { transaction } });
+  } catch (error) {
+    return next(new AppError('Failed to create transaction', 500));
+  }
 });
 
-const { streamCursorAsCSV } = require('../utils/csvStream');
-
-exports.getTransactions = catchAsync(async (req, res) => {
+exports.getTransactions = catchAsync(async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(200, parseInt(req.query.limit, 10) || 20);
-    const skip = (page - 1) * limit;
-    const q = req.query.q;
     const type = req.query.type;
-    const filter = req.user.role === 'member' ? { user: req.user.id } : {};
-    if (type) filter.type = type;
-    if (q) {
-      const re = new RegExp(q, 'i');
-      filter.$or = [{ reference: re }, { providerReference: re }];
-    }
+    const filters = req.user.role === 'member' ? { user: req.user.id } : {};
+    if (type) filters.type = type;
 
     if (req.query.export === 'csv') {
-      const keys = ['_id', 'user', 'type', 'amount', 'currency', 'status', 'reference', 'createdAt'];
-      const cursor = Transaction.find(filter).populate('user', 'fullName email').sort({ createdAt: -1 }).cursor();
+      const keys = ['id', 'user', 'type', 'amount', 'currency', 'status', 'reference', 'created_at'];
+      const transactions = await db.getTransactionsByUser(req.user.id, filters);
       res.attachment('transactions.csv');
-      return streamCursorAsCSV(res, cursor, keys, (r) => ({
-        _id: r._id,
-        user: r.user?.fullName || r.user?.email || '',
+      return streamCursorAsCSV(res, transactions, keys, (r) => ({
+        id: r.id,
+        user: r.user,
         type: r.type,
         amount: r.amount,
         currency: r.currency,
         status: r.status,
         reference: r.reference,
-        createdAt: r.createdAt
+        created_at: r.created_at
       }));
     }
 
-    const total = await Transaction.countDocuments(filter);
-    const transactions = await Transaction.find(filter).populate('user', 'fullName email').sort({ createdAt: -1 }).skip(skip).limit(limit);
-    res.status(200).json({ status: 'success', results: transactions.length, page, total, data: { transactions } });
+    const paginatedResult = await db.paginatedQuery('transactions', filters, page, limit);
+    res.status(200).json({
+      status: 'success',
+      results: paginatedResult.data.length,
+      page: paginatedResult.page,
+      total: paginatedResult.total,
+      data: { transactions: paginatedResult.data }
+    });
   } catch (error) {
-    // Return empty results if database is unavailable
     res.status(200).json({ status: 'success', results: 0, page: 1, total: 0, data: { transactions: [] } });
   }
 });
 
 exports.getTransaction = catchAsync(async (req, res, next) => {
-  const transaction = await Transaction.findById(req.params.id);
-  if (!transaction) return next(new AppError('Transaction not found', 404));
-  if (req.user.role === 'member' && transaction.user.toString() !== req.user.id) {
-    return next(new AppError('Not authorized to access this transaction', 403));
+  try {
+    const transaction = await db.getTransactionById(req.params.id);
+    if (!transaction) return next(new AppError('Transaction not found', 404));
+    if (req.user.role === 'member' && transaction.user !== req.user.id) {
+      return next(new AppError('Not authorized to access this transaction', 403));
+    }
+    res.status(200).json({ status: 'success', data: { transaction } });
+  } catch (error) {
+    return next(new AppError('Failed to fetch transaction', 500));
   }
-  res.status(200).json({ status: 'success', data: { transaction } });
 });
 
 exports.deleteTransaction = catchAsync(async (req, res, next) => {
-  const transaction = await Transaction.findByIdAndDelete(req.params.id);
-  if (!transaction) return next(new AppError('Transaction not found', 404));
-  res.status(204).json({ status: 'success', data: null });
+  try {
+    await db.deleteTransaction(req.params.id);
+    res.status(204).json({ status: 'success', data: null });
+  } catch (error) {
+    return next(new AppError('Failed to delete transaction', 500));
+  }
 });

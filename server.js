@@ -14,7 +14,6 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 
-const connectDatabase = require('./config/db');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./middlewares/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
@@ -35,8 +34,6 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const CLIENT_URL = (process.env.CLIENT_URL || 'http://localhost:5500').trim().replace(/\/$/, '');
 console.log('Normalized CLIENT_URL:', CLIENT_URL);
-
-connectDatabase();
 
 // Helmet with a basic CSP; adjust sources as your frontend evolves
 app.use(
