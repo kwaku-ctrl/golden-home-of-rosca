@@ -1,6 +1,6 @@
 const express = require('express');
 const transactionController = require('../controllers/transactionController');
-const { protect, restrictTo } = require('../middlewares/authMiddleware');
+const { protect, restrictTo } = require('../middlewares/authMiddlewareSupabase');
 const router = express.Router();
 
 router.use(protect);

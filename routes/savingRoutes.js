@@ -1,6 +1,6 @@
 const express = require('express');
 const savingController = require('../controllers/savingController');
-const { protect, restrictTo } = require('../middlewares/authMiddleware');
+const { protect, restrictTo } = require('../middlewares/authMiddlewareSupabase');
 const router = express.Router();
 
 router.use(protect);
