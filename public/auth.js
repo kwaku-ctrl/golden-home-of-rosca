@@ -1,4 +1,5 @@
 const AUTH_TOKEN_KEY = 'ghor_jwt_token';
+const AUTH_USER_KEY = 'ghor_user_data';
 const authForm = document.getElementById('authForm');
 const loginTab = document.getElementById('loginTab');
 const signupTab = document.getElementById('signupTab');
@@ -33,7 +34,23 @@ const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 
 const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
 
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const setUserData = (user) => {
+  if (!user) return;
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+};
+
+const getUserData = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const clearUserData = () => localStorage.removeItem(AUTH_USER_KEY);
+
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === ''
   ? ''
   : 'https://ghor-backend.onrender.com';
 
@@ -105,6 +122,9 @@ const handleAuthSubmit = async (event) => {
     const data = await requestAuth(mode, payload);
     if (data.token) {
       setToken(data.token);
+    }
+    if (data.data?.user) {
+      setUserData(data.data.user);
     }
     showToast(`${mode === 'signup' ? 'Registration' : 'Login'} successful.`);
     redirectToDashboard();

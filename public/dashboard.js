@@ -1,10 +1,30 @@
 const AUTH_TOKEN_KEY = 'ghor_jwt_token';
+const AUTH_USER_KEY = 'ghor_user_data';
 const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? '/api'
   : 'https://ghor-backend.onrender.com/api';
 
 const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
+const setUserData = (user) => {
+  if (!user) return;
+  try {
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+  } catch (error) {
+    console.warn('Unable to cache user data', error);
+  }
+};
+
+const getUserData = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
 const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
+const clearUserData = () => localStorage.removeItem(AUTH_USER_KEY);
 
 const getCookie = (name) => {
   const match = document.cookie.match(new RegExp(`(^|; )${name}=([^;]+)`));
@@ -392,7 +412,11 @@ const renderStatements = (items = []) => {
 
 const attachPanelHandlers = () => {
   document.querySelectorAll('.nav-item').forEach((button) => {
-    button.addEventListener('click', () => setPanel(button.dataset.panel));
+    button.addEventListener('click', (event) => {
+      if (button.tagName.toLowerCase() === 'a') return;
+      event.preventDefault();
+      setPanel(button.dataset.panel);
+    });
   });
 
   document.getElementById('mobileToggle')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
@@ -434,6 +458,17 @@ const attachPanelHandlers = () => {
         showToast(`${action.charAt(0).toUpperCase()}${action.slice(1)} action queued.`);
       }
     });
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    try {
+      await sendRequest('/auth/logout', { method: 'GET' });
+    } catch (error) {
+      console.warn('Logout request failed, clearing local session anyway.', error);
+    }
+    clearToken();
+    clearUserData();
+    window.location.href = 'login.html';
   });
 
   const profileForm = document.getElementById('profileForm');
@@ -503,7 +538,12 @@ const loadDashboard = async () => {
     ]);
 
     const auth = authResult.status === 'fulfilled' ? authResult.value : null;
-    const authUser = auth?.data?.user || auth?.user || auth?.data || demoState.user;
+    const cachedUser = getUserData();
+    const authUser = auth?.data?.user || auth?.user || auth?.data || cachedUser || demoState.user;
+    if (auth?.data?.user) {
+      setUserData(auth.data.user);
+    }
+
     const savingsItems = normalizeArray(savingsResult.status === 'fulfilled' ? savingsResult.value : null, demoState.savings);
     const loanItems = normalizeArray(loansResult.status === 'fulfilled' ? loansResult.value : null, demoState.loans);
     const transactionItems = normalizeArray(transactionsResult.status === 'fulfilled' ? transactionsResult.value : null, demoState.transactions);
@@ -512,6 +552,8 @@ const loadDashboard = async () => {
 
     if (!hasSession) {
       showToast('Showing preview dashboard. Sign in to load live account data.');
+    } else if (!auth && cachedUser) {
+      showToast('Using cached member profile while session is being verified.');
     }
 
     renderProfile(authUser);
@@ -531,6 +573,7 @@ const loadDashboard = async () => {
   } catch (error) {
     if (getToken()) {
       clearToken();
+      clearUserData();
       window.location.href = 'login.html';
       return;
     }

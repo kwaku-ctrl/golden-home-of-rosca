@@ -35,6 +35,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 const CLIENT_URL = (process.env.CLIENT_URL || 'http://localhost:5500').trim().replace(/\/$/, '');
 console.log('Normalized CLIENT_URL:', CLIENT_URL);
 
+const isLocalDevOrigin = (origin) => /^(https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/.test(origin);
+
 // Helmet with a basic CSP; adjust sources as your frontend evolves
 app.use(
   helmet({
@@ -50,7 +52,17 @@ app.use(
     }
   })
 );
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || origin === CLIENT_URL || (!isProduction && isLocalDevOrigin(origin))) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true
+  })
+);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
