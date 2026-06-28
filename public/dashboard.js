@@ -416,12 +416,11 @@ const attachPanelHandlers = () => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
       if (action === 'support') {
-        setPanel('support');
+        window.location.href = 'support.html';
       } else if (action === 'loan') {
         setPanel('loans');
       } else if (action === 'deposit') {
-        setPanel('accounts');
-        openModal('Deposit funds', 'You can add money to your account instantly from the account overview.', 'Open accounts');
+        window.location.href = 'checkout.html';
       } else if (action === 'withdraw') {
         setPanel('mobile-money');
         openModal('Withdraw funds', 'Use mobile money or wallet transfer to withdraw securely.', 'Open wallet');
