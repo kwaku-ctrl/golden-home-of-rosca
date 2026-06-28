@@ -128,6 +128,36 @@ const state = {
 const setPanel = (panelName) => {
   document.querySelectorAll('.nav-item').forEach((button) => button.classList.toggle('active', button.dataset.panel === panelName));
   document.querySelectorAll('.panel-section').forEach((section) => section.classList.toggle('active', section.id === panelName));
+  const sidebar = document.getElementById('sidebar');
+  sidebar?.classList.remove('open');
+  const activeSection = document.getElementById(panelName);
+  activeSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+const openModal = (title, body, primaryLabel = 'Continue', primaryAction = null) => {
+  const overlay = document.getElementById('dashboardModal');
+  const titleEl = document.getElementById('modalTitle');
+  const bodyEl = document.getElementById('modalBody');
+  const primaryBtn = document.getElementById('modalPrimaryBtn');
+  const secondaryBtn = document.getElementById('modalSecondaryBtn');
+
+  if (!overlay || !titleEl || !bodyEl || !primaryBtn || !secondaryBtn) return;
+
+  titleEl.textContent = title;
+  bodyEl.textContent = body;
+  primaryBtn.textContent = primaryLabel;
+  primaryBtn.onclick = () => {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (typeof primaryAction === 'function') primaryAction();
+  };
+  secondaryBtn.onclick = () => {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+  };
+
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
 };
 
 const getDisplayName = (user = {}) => {
@@ -389,6 +419,18 @@ const attachPanelHandlers = () => {
         setPanel('support');
       } else if (action === 'loan') {
         setPanel('loans');
+      } else if (action === 'deposit') {
+        setPanel('accounts');
+        openModal('Deposit funds', 'You can add money to your account instantly from the account overview.', 'Open accounts');
+      } else if (action === 'withdraw') {
+        setPanel('mobile-money');
+        openModal('Withdraw funds', 'Use mobile money or wallet transfer to withdraw securely.', 'Open wallet');
+      } else if (action === 'repay') {
+        setPanel('loans');
+        openModal('Repay loan', 'Your next installment is ready for payment from the loan section.', 'Open loans');
+      } else if (action === 'transfer') {
+        setPanel('mobile-money');
+        openModal('Transfer funds', 'Start a transfer from the mobile money section.', 'Open mobile money');
       } else {
         showToast(`${action.charAt(0).toUpperCase()}${action.slice(1)} action queued.`);
       }
@@ -429,9 +471,23 @@ const attachPanelHandlers = () => {
       showToast('Please enter a valid savings amount.');
       return;
     }
-    showToast('Savings plan created securely.');
+    openModal('Savings plan created', 'Your contribution is now scheduled and will appear in your savings history.', 'View savings', () => setPanel('savings'));
     createSavingForm.reset();
     await loadDashboard();
+  });
+
+  document.querySelectorAll('.notice-card, .statement-card, .support-item, .security-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      if (item.classList.contains('notice-card')) {
+        setPanel('notifications');
+      } else if (item.classList.contains('statement-card')) {
+        setPanel('statements');
+      } else if (item.classList.contains('support-item')) {
+        setPanel('support');
+      } else if (item.classList.contains('security-item')) {
+        setPanel('settings');
+      }
+    });
   });
 };
 

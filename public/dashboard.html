@@ -145,8 +145,8 @@
       .stat-card.primary .stat-icon { background: rgba(255,255,255,0.16); color: white; }
 
       .actions-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
-      .action-card { padding: 1rem; text-align: left; display: grid; gap: 0.45rem; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-soft); }
-      .action-card:hover { border-color: var(--navy); }
+      .action-card { padding: 1rem; text-align: left; display: grid; gap: 0.45rem; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-soft); cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; }
+      .action-card:hover, .action-card:focus-visible, .notice-card:hover, .notice-card:focus-visible, .statement-card:hover, .statement-card:focus-visible, .support-item:hover, .support-item:focus-visible, .security-item:hover, .security-item:focus-visible { border-color: var(--navy); transform: translateY(-1px); outline: none; }
       .action-card .action-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); font-size: 1.03rem; }
       .action-card strong { font-size: 0.95rem; }
       .action-card span { font-size: 0.8rem; color: var(--muted); }
@@ -180,11 +180,11 @@
       .empty-state { color: var(--muted); text-align: center; padding: 1rem; }
 
       .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-      .notice-card { padding: 1rem; display: grid; gap: 0.7rem; }
+      .notice-card { padding: 1rem; display: grid; gap: 0.7rem; cursor: pointer; border: 1px solid var(--border); }
       .notice-card.unread { border-color: var(--gold); background: linear-gradient(135deg, #fffdf7, white); }
       .notice-top { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
       .notice-card p { color: var(--muted); font-size: 0.9rem; }
-      .statement-card, .support-card { padding: 1rem; display: grid; gap: 0.8rem; }
+      .statement-card, .support-card { padding: 1rem; display: grid; gap: 0.8rem; cursor: pointer; }
       .statement-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.9rem; }
       .support-list { display: grid; gap: 0.6rem; }
       .support-item { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
@@ -204,6 +204,10 @@
 
       .footer { padding: 0 1.5rem 1.5rem; color: var(--muted); font-size: 0.85rem; }
       .whatsapp-float { position: fixed; bottom: 1.25rem; right: 1.25rem; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #25d366, #1f9e4d); color: white; display: grid; place-items: center; box-shadow: var(--shadow); z-index: 1100; }
+      .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 2100; }
+      .modal-overlay.open { display: flex; }
+      .modal-dialog { width: min(100%, 460px); background: white; border-radius: 24px; box-shadow: var(--shadow); padding: 1.25rem; display: grid; gap: 0.8rem; }
+      .modal-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 
       @media (max-width: 1100px) {
         .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -222,7 +226,9 @@
       }
 
       @media (max-width: 640px) {
-        .topbar { padding: 0.85rem 1rem; }
+        .topbar { padding: 0.85rem 1rem; flex-wrap: wrap; }
+        .topbar-left { width: 100%; }
+        .topbar-right { width: 100%; justify-content: flex-end; }
         .profile-pill .profile-meta { display: none; }
         .summary-grid, .actions-grid { grid-template-columns: 1fr; }
       }
@@ -696,6 +702,22 @@
     </div>
 
     <button class="whatsapp-float" aria-label="Contact support">💬</button>
+
+    <div class="modal-overlay" id="dashboardModal" aria-hidden="true">
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="card-head" style="margin-bottom: 0;">
+          <div>
+            <h2 id="modalTitle">Action</h2>
+            <p id="modalBody">Choose an action to continue.</p>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="modalPrimaryBtn">Continue</button>
+          <button class="btn btn-ghost" id="modalSecondaryBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
     <script src="scripts.js" defer></script>
     <script src="dashboard.js" defer></script>
   </body>
