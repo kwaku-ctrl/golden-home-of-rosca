@@ -35,7 +35,21 @@ const isProduction = process.env.NODE_ENV === 'production';
 const CLIENT_URL = (process.env.CLIENT_URL || 'http://localhost:5500').trim().replace(/\/$/, '');
 console.log('Normalized CLIENT_URL:', CLIENT_URL);
 
+app.set('trust proxy', 1);
+
 const isLocalDevOrigin = (origin) => /^(https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/.test(origin);
+
+// Support multiple allowed client origins via a comma-separated CLIENT_URL env var
+const rawClientUrls = process.env.CLIENT_URL || 'http://localhost:5500';
+const ALLOWED_ORIGINS = rawClientUrls
+  .split(',')
+  .map((s) => s.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  return ALLOWED_ORIGINS.includes(origin) || (!isProduction && isLocalDevOrigin(origin));
+};
 
 // Helmet with a basic CSP; adjust sources as your frontend evolves
 app.use(
@@ -47,22 +61,35 @@ app.use(
         scriptSrcElem: ["'self'", "'unsafe-inline'", "blob:"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'", CLIENT_URL, 'ws:', 'https://ghor-backend.onrender.com']
+        connectSrc: ["'self'", ...ALLOWED_ORIGINS, 'ws:']
       }
     }
   })
 );
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || origin === CLIENT_URL || (!isProduction && isLocalDevOrigin(origin))) {
-        return callback(null, true);
-      }
-      callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true
-  })
-);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (!origin) {
+    return next();
+  }
+
+  const serverOrigin = `${req.protocol}://${req.get('host')}`;
+  const allowed = origin === serverOrigin || isAllowedOrigin(origin);
+
+  if (!allowed) {
+    return next(new AppError('Not allowed by CORS', 403));
+  }
+
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-XSRF-TOKEN');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
