@@ -3,20 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Member dashboard for Golden Home Of ROSCA — view savings, loans, transactions and manage your profile securely." />
-    <meta name="keywords" content="ROSCA, savings, loans, microfinance, dashboard, financial" />
-    <title>Member Dashboard | Golden Home Of ROSCA</title>
+    <meta name="description" content="Premium customer dashboard for Golden Home Of ROSCA with savings, loans, transactions and secure account management." />
+    <meta name="keywords" content="ROSCA, savings, loans, dashboard, personal finance, Ghana" />
+    <title>Customer Dashboard | Golden Home Of ROSCA</title>
     <link rel="canonical" href="/dashboard.html" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="Member Dashboard | Golden Home Of ROSCA" />
+    <meta property="og:title" content="Customer Dashboard | Golden Home Of ROSCA" />
     <meta property="og:description" content="Secure member dashboard to view savings, loans and transactions." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="/dashboard.html" />
     <meta property="og:site_name" content="Golden Home Of ROSCA" />
-
-    <!-- JSON-LD Organization schema -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -28,962 +24,678 @@
     </script>
     <style>
       :root {
-        --primary-color: #f4b845;
-        --primary-dark: #d4941f;
-        --success-color: #10b981;
-        --danger-color: #ef4444;
-        --warning-color: #f59e0b;
-        --neutral-50: #f9fafb;
-        --neutral-100: #f3f4f6;
-        --neutral-200: #e5e7eb;
-        --neutral-300: #d1d5db;
-        --neutral-500: #6b7280;
-        --neutral-600: #4b5563;
-        --neutral-700: #374151;
-        --neutral-900: #111827;
-        --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        --navy: #0f4c81;
+        --navy-deep: #0a355d;
+        --emerald: #0b8f5a;
+        --emerald-soft: #e8f7f0;
+        --gold: #d4af37;
+        --gold-soft: #fdf7e6;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --bg: #f5f7fb;
+        --surface: #ffffff;
+        --shadow: 0 18px 40px rgba(15, 76, 129, 0.12);
+        --shadow-soft: 0 10px 24px rgba(15, 76, 129, 0.08);
+        --radius: 24px;
       }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        background: var(--neutral-50);
-        color: var(--neutral-900);
-        line-height: 1.5;
-      }
-
-      /* Header */
-      .site-header {
-        background: white;
-        border-bottom: 1px solid var(--neutral-200);
-        padding: 1rem 0;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .header-container {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .brand-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .brand-logo {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: var(--neutral-900);
-        font-weight: 600;
-      }
-
-      .brand-mark {
-        width: 40px;
-        height: 40px;
-        background: var(--primary-color);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 1.25rem;
-      }
-
-      .brand-text strong {
-        display: block;
-        font-size: 1rem;
-      }
-
-      .brand-text small {
-        display: block;
-        font-size: 0.75rem;
-        color: var(--neutral-500);
-        font-weight: normal;
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .notification-bell {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        position: relative;
-        padding: 0.5rem;
-        color: var(--neutral-600);
-      }
-
-      .notification-badge {
-        position: absolute;
-        top: 0;
-        right: 0;
-        background: var(--danger-color);
-        color: white;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: bold;
-      }
-
-      .profile-section {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .avatar {
-        width: 40px;
-        height: 40px;
-        background: var(--primary-color);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 1.125rem;
-      }
-
-      .profile-name {
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
-
-      .profile-role {
-        font-size: 0.75rem;
-        color: var(--neutral-500);
-      }
-
-      .logout-btn {
-        background: none;
-        border: 1px solid var(--neutral-300);
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        color: var(--neutral-600);
-        transition: all 0.2s;
-      }
-
-      .logout-btn:hover {
-        background: var(--neutral-100);
-        border-color: var(--neutral-400);
-      }
-
-      /* Main content */
-      .page-container {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-      }
-
-      /* Welcome section */
-      .welcome-section {
-        margin-bottom: 2rem;
-      }
-
-      .welcome-title {
-        font-size: 1.875rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-      }
-
-      .welcome-subtitle {
-        color: var(--neutral-600);
-        font-size: 1rem;
-      }
-
-      /* Grid layout */
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      @media (min-width: 1024px) {
-        .dashboard-grid {
-          grid-template-columns: 2fr 1fr 1fr;
-        }
-      }
-
-      /* Card styles */
-      .card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--neutral-100);
-        transition: all 0.2s;
-      }
-
-      .card:hover {
-        box-shadow: var(--shadow-md);
-      }
-
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-      }
-
-      .card-label {
-        font-size: 0.875rem;
-        color: var(--neutral-600);
-        font-weight: 500;
-      }
-
-      .card-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--neutral-900);
-        margin: 0.5rem 0;
-      }
-
-      .card-subtext {
-        font-size: 0.875rem;
-        color: var(--neutral-600);
-      }
-
-      .card-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .badge-success {
-        background: #dcfce7;
-        color: #166534;
-      }
-
-      .badge-warning {
-        background: #fef3c7;
-        color: #92400e;
-      }
-
-      .badge-danger {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-      .badge-info {
-        background: #dbeafe;
-        color: #0c2d6b;
-      }
-
-      /* Savings card - prominent */
-      .savings-card {
-        grid-column: 1 / -1;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-        color: white;
-      }
-
-      .savings-card .card-label {
-        color: rgba(255,255,255,0.9);
-      }
-
-      .savings-card .card-value {
-        color: white;
-        font-size: 2.5rem;
-      }
-
-      .savings-card .card-subtext {
-        color: rgba(255,255,255,0.9);
-      }
-
-      @media (min-width: 1024px) {
-        .savings-card {
-          grid-column: 1 / 2;
-          grid-row: 1 / 3;
-        }
-      }
-
-      /* Action buttons */
-      .card-actions {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 1rem;
-      }
-
-      .btn {
-        padding: 0.75rem 1rem;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .btn-primary {
-        background: var(--primary-color);
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: var(--primary-dark);
-      }
-
-      .btn-secondary {
-        background: var(--neutral-200);
-        color: var(--neutral-900);
-      }
-
-      .btn-secondary:hover {
-        background: var(--neutral-300);
-      }
-
-      .btn-success {
-        background: var(--success-color);
-        color: white;
-      }
-
-      .btn-success:hover {
-        background: #059669;
-      }
-
-      .btn-small {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.75rem;
-      }
-
-      /* Recent transactions section */
-      .section {
-        margin-bottom: 2rem;
-      }
-
-      .section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--neutral-900);
-      }
-
-      .section-subtitle {
-        font-size: 0.875rem;
-        color: var(--neutral-600);
-        margin-bottom: 1.5rem;
-      }
-
-      /* Table styles */
-      .table-wrapper {
-        background: white;
-        border-radius: 12px;
-        border: 1px solid var(--neutral-100);
-        overflow: hidden;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      thead {
-        background: var(--neutral-50);
-        border-bottom: 1px solid var(--neutral-200);
-      }
-
-      th {
-        padding: 1rem;
-        text-align: left;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--neutral-700);
-      }
-
-      td {
-        padding: 1rem;
-        border-bottom: 1px solid var(--neutral-100);
-        font-size: 0.875rem;
-      }
-
-      tbody tr:hover {
-        background: var(--neutral-50);
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .status-completed {
-        background: #dcfce7;
-        color: #166534;
-      }
-
-      .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-      }
-
-      .status-failed {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-      /* Forms */
-      .form-section {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        border: 1px solid var(--neutral-100);
-      }
-
-      .form-group {
-        margin-bottom: 1rem;
-      }
-
-      .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-        color: var(--neutral-700);
-      }
-
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--neutral-300);
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-family: inherit;
-      }
-
-      .form-group input:focus,
-      .form-group select:focus,
-      .form-group textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(244, 184, 69, 0.1);
-      }
-
-      /* Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .modal.active {
-        display: flex;
-      }
-
-      .modal-content {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        max-width: 500px;
-        width: 90%;
-        box-shadow: var(--shadow-lg);
-      }
-
-      .modal-header {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-      }
-
-      .modal-body {
-        margin-bottom: 1.5rem;
-        color: var(--neutral-700);
-      }
-
-      .modal-footer {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-      }
-
-      /* Notifications */
-      .toast-container {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        z-index: 2000;
-      }
-
-      .toast {
-        background: var(--neutral-900);
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-        animation: slideIn 0.3s ease-out;
-      }
-
-      @keyframes slideIn {
-        from {
-          transform: translateX(400px);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-
-      /* Empty state */
-      .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: var(--neutral-600);
-      }
-
-      /* Footer */
-      .site-footer {
-        background: var(--neutral-100);
-        padding: 2rem 1rem;
-        text-align: center;
-        color: var(--neutral-600);
-        font-size: 0.875rem;
-        margin-top: 4rem;
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-        .header-container {
-          flex-wrap: wrap;
-        }
-
-        .page-container {
-          padding: 1rem;
-        }
-
-        .welcome-title {
-          font-size: 1.5rem;
-        }
-
-        .dashboard-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .savings-card {
-          grid-column: 1;
-          grid-row: auto;
-        }
-
-        .card-value {
-          font-size: 1.5rem;
-        }
-
-        .savings-card .card-value {
-          font-size: 2rem;
-        }
-
-        .table-wrapper {
-          overflow-x: auto;
-        }
-
-        table {
-          min-width: 500px;
-        }
-      }
-
-      /* WhatsApp button */
-      .whatsapp-float {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: #25d366;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        box-shadow: var(--shadow-lg);
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-      }
-
-      .whatsapp-float:hover {
-        transform: scale(1.1);
-      }
-
-      .whatsapp-float span {
-        display: none;
-      }
+        font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(135deg, #f7f9fc 0%, #f0f4f8 100%);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      button, input, select, textarea { font: inherit; }
+      button { border: none; background: none; cursor: pointer; }
+      a { color: inherit; text-decoration: none; }
 
       .skip-link {
-        position: absolute;
-        top: -40px;
-        left: 0;
-        background: var(--primary-color);
-        color: white;
-        padding: 8px;
-        text-decoration: none;
-        z-index: 100;
+        position: absolute; left: 0; top: -60px; padding: 0.75rem 1rem; background: var(--navy); color: white; z-index: 1000; border-radius: 0 0 12px 0;
+      }
+      .skip-link:focus { top: 0; }
+
+      .toast-container { position: fixed; top: 1rem; right: 1rem; display: grid; gap: 0.5rem; z-index: 2000; }
+      .toast { background: var(--navy); color: white; padding: 0.9rem 1rem; border-radius: 999px; box-shadow: var(--shadow); }
+
+      .dashboard-shell {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        min-height: 100vh;
+        background: var(--bg);
       }
 
-      .skip-link:focus {
-        top: 0;
+      .sidebar {
+        background: linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+        color: white;
+        padding: 1.25rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .brand-block {
+        display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.16);
+      }
+      .brand-logo { display: flex; align-items: center; gap: 0.75rem; }
+      .brand-mark { width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--gold), #f5d16d); color: #111827; display: grid; place-items: center; font-weight: 800; }
+      .brand-text strong { display: block; font-size: 0.95rem; }
+      .brand-text small { display: block; font-size: 0.75rem; color: rgba(255,255,255,0.75); }
+      .sidebar-toggle { display: none; width: 40px; height: 40px; border-radius: 12px; color: white; border: 1px solid rgba(255,255,255,0.2); }
+      .sidebar-nav { display: grid; gap: 0.35rem; margin-top: 0.5rem; }
+      .nav-item {
+        width: 100%; display: flex; align-items: center; gap: 0.75rem; padding: 0.8rem 0.9rem; border-radius: 14px; color: rgba(255,255,255,0.9); transition: all 0.2s ease; text-align: left;
+      }
+      .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.16); color: white; }
+      .nav-icon { width: 24px; text-align: center; }
+      .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.16); display: grid; gap: 0.75rem; }
+      .security-pill { border-radius: 999px; padding: 0.7rem 0.9rem; font-size: 0.8rem; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.95); text-align: center; }
+      .btn-full { width: 100%; justify-content: center; }
+
+      .main-panel { display: flex; flex-direction: column; }
+      .topbar {
+        display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.1rem 1.5rem; background: rgba(255,255,255,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px);
+      }
+      .topbar-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; }
+      .mobile-toggle { display: none; width: 42px; height: 42px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+      .search-box { flex: 1; display: flex; align-items: center; gap: 0.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 0.75rem 1rem; color: var(--muted); }
+      .search-box input { border: none; outline: none; background: transparent; width: 100%; color: var(--text); }
+      .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+      .icon-btn { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); position: relative; display: grid; place-items: center; }
+      .badge { position: absolute; top: -2px; right: -2px; width: 16px; height: 16px; border-radius: 50%; background: var(--danger); color: white; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+      .profile-pill { display: flex; align-items: center; gap: 0.75rem; padding: 0.45rem 0.7rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); }
+      .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--emerald), var(--navy)); color: white; display: grid; place-items: center; font-weight: 700; }
+      .profile-meta strong { display: block; font-size: 0.9rem; }
+      .profile-meta span { display: block; font-size: 0.74rem; color: var(--muted); }
+
+      .content { padding: 1.5rem; display: grid; gap: 1.25rem; }
+      .panel-section { display: none; gap: 1.25rem; }
+      .panel-section.active { display: grid; }
+      .hero-card, .card, .notice-card, .statement-card, .support-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-soft); }
+      .hero-card { padding: 1.4rem; display: grid; gap: 1rem; grid-template-columns: 1.2fr 0.8fr; align-items: center; background: linear-gradient(135deg, rgba(15, 76, 129, 0.95), rgba(11, 143, 90, 0.9)); color: white; }
+      .eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.8); font-weight: 700; }
+      .hero-card h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.08; margin-top: 0.25rem; }
+      .hero-card p { color: rgba(255,255,255,0.9); }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.75rem 1rem; border-radius: 999px; font-weight: 600; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+      .btn:hover { transform: translateY(-1px); }
+      .btn-primary { background: linear-gradient(135deg, var(--gold), #f2ca57); color: #111827; box-shadow: 0 12px 24px rgba(212, 175, 55, 0.24); }
+      .btn-ghost { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.2); }
+      .hero-stats { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: flex-end; }
+      .pill { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18); border-radius: 16px; padding: 0.8rem 1rem; min-width: 140px; }
+      .pill strong { display: block; font-size: 0.95rem; }
+      .pill span { display: block; font-size: 0.74rem; color: rgba(255,255,255,0.78); }
+
+      .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+      .stat-card { padding: 1rem 1.1rem; display: grid; gap: 0.65rem; position: relative; overflow: hidden; }
+      .stat-card::after { content: ''; position: absolute; right: -18px; top: -18px; width: 90px; height: 90px; border-radius: 50%; background: rgba(15, 76, 129, 0.08); }
+      .stat-card.primary { background: linear-gradient(135deg, #111827, var(--navy)); color: white; }
+      .stat-card.primary::after { background: rgba(255,255,255,0.12); }
+      .stat-card .stat-title { font-size: 0.85rem; color: var(--muted); }
+      .stat-card.primary .stat-title { color: rgba(255,255,255,0.75); }
+      .stat-card .stat-value { font-size: 1.3rem; font-weight: 700; }
+      .stat-card .stat-meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+      .stat-card.primary .stat-meta { color: rgba(255,255,255,0.8); }
+      .stat-card .trend { font-weight: 700; color: var(--emerald); }
+      .stat-card.primary .trend { color: #8ce8ba; }
+      .stat-icon { width: 42px; height: 42px; border-radius: 14px; background: var(--emerald-soft); color: var(--emerald); display: grid; place-items: center; font-size: 1.05rem; }
+      .stat-card.primary .stat-icon { background: rgba(255,255,255,0.16); color: white; }
+
+      .actions-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
+      .action-card { padding: 1rem; text-align: left; display: grid; gap: 0.45rem; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-soft); }
+      .action-card:hover { border-color: var(--navy); }
+      .action-card .action-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); font-size: 1.03rem; }
+      .action-card strong { font-size: 0.95rem; }
+      .action-card span { font-size: 0.8rem; color: var(--muted); }
+
+      .content-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1rem; }
+      .card { padding: 1.15rem; }
+      .card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.85rem; }
+      .card-head h2, .card-head h3 { font-size: 1rem; }
+      .card-head p { font-size: 0.8rem; color: var(--muted); }
+      .progress-bar { height: 10px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin: 0.65rem 0 0.8rem; }
+      .progress-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--emerald), var(--navy)); }
+      .goal-meta { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.9rem; color: var(--muted); }
+      .goal-meta strong { display: block; color: var(--text); }
+      .loan-grid { display: grid; gap: 0.65rem; }
+      .loan-item { display: flex; justify-content: space-between; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+      .loan-item:last-child { border-bottom: none; }
+      .micro-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); margin-bottom: 0.18rem; }
+
+      .table-controls { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 0.8rem; }
+      .chip { display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 999px; border: 1px solid var(--border); background: #f8fafc; padding: 0.55rem 0.75rem; font-size: 0.82rem; color: var(--muted); }
+      .chip.active { background: var(--emerald-soft); color: var(--emerald); border-color: #bde7d1; }
+      .table-wrapper { overflow-x: auto; }
+      table { width: 100%; min-width: 620px; border-collapse: collapse; }
+      th, td { padding: 0.8rem 0.65rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+      th { color: var(--muted); font-weight: 600; }
+      tbody tr:hover { background: #f8fafc; }
+      .status-pill { display: inline-flex; align-items: center; padding: 0.3rem 0.6rem; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
+      .status-success { background: #e8f8ef; color: var(--emerald); }
+      .status-pending { background: #fff5e5; color: var(--warning); }
+      .status-failed { background: #fee7e7; color: var(--danger); }
+      .empty-state { color: var(--muted); text-align: center; padding: 1rem; }
+
+      .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+      .notice-card { padding: 1rem; display: grid; gap: 0.7rem; }
+      .notice-card.unread { border-color: var(--gold); background: linear-gradient(135deg, #fffdf7, white); }
+      .notice-top { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
+      .notice-card p { color: var(--muted); font-size: 0.9rem; }
+      .statement-card, .support-card { padding: 1rem; display: grid; gap: 0.8rem; }
+      .statement-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.9rem; }
+      .support-list { display: grid; gap: 0.6rem; }
+      .support-item { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+      .support-item:last-child { border-bottom: none; }
+
+      .form-grid { display: grid; gap: 0.8rem; }
+      .field { display: grid; gap: 0.35rem; }
+      .field label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+      .field input, .field select, .field textarea { width: 100%; padding: 0.75rem 0.8rem; border-radius: 14px; border: 1px solid var(--border); background: #f8fafc; color: var(--text); }
+      .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid rgba(15, 76, 129, 0.16); border-color: var(--navy); }
+      .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+      .security-list { display: grid; gap: 0.8rem; }
+      .security-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
+      .security-item:last-child { border-bottom: none; }
+      .muted { color: var(--muted); }
+      .link-btn { color: var(--navy); font-weight: 600; }
+
+      .footer { padding: 0 1.5rem 1.5rem; color: var(--muted); font-size: 0.85rem; }
+      .whatsapp-float { position: fixed; bottom: 1.25rem; right: 1.25rem; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #25d366, #1f9e4d); color: white; display: grid; place-items: center; box-shadow: var(--shadow); z-index: 1100; }
+
+      @media (max-width: 1100px) {
+        .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .actions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      @media (max-width: 860px) {
+        .dashboard-shell { grid-template-columns: 1fr; }
+        .sidebar { position: fixed; inset: 0 auto 0 0; width: min(82vw, 280px); z-index: 1200; transform: translateX(-100%); transition: transform 0.25s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-toggle, .mobile-toggle { display: grid; place-items: center; }
+        .content { padding: 1rem; }
+        .hero-card { grid-template-columns: 1fr; }
+        .hero-stats { justify-content: flex-start; }
+        .content-grid, .grid-2, .two-col { grid-template-columns: 1fr; }
+      }
+
+      @media (max-width: 640px) {
+        .topbar { padding: 0.85rem 1rem; }
+        .profile-pill .profile-meta { display: none; }
+        .summary-grid, .actions-grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="toast-container" aria-live="polite"></div>
-    <button class="whatsapp-float" aria-label="Contact us on WhatsApp">
-      <span>WhatsApp</span>
-    </button>
-
-    <!-- Header -->
-    <header class="site-header">
-      <div class="header-container">
-        <div class="brand-section">
-          <a href="index.html" class="brand-logo">
+    <div class="dashboard-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand-block">
+          <a class="brand-logo" href="index.html">
             <div class="brand-mark">G</div>
             <div class="brand-text">
               <strong>Golden Home</strong>
-              <small>ROSCA Member</small>
+              <small>Member portal</small>
             </div>
           </a>
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation">☰</button>
         </div>
 
-        <div class="header-actions">
-          <button class="notification-bell" id="notificationBtn" aria-label="Notifications">
-            🔔
-            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-          </button>
+        <nav class="sidebar-nav" aria-label="Sidebar navigation">
+          <button class="nav-item active" data-panel="overview"><span class="nav-icon">⌂</span>Dashboard</button>
+          <button class="nav-item" data-panel="accounts"><span class="nav-icon">▣</span>Accounts</button>
+          <button class="nav-item" data-panel="savings"><span class="nav-icon">◌</span>Savings</button>
+          <button class="nav-item" data-panel="loans"><span class="nav-icon">◫</span>Loans</button>
+          <button class="nav-item" data-panel="transactions"><span class="nav-icon">⇄</span>Transactions</button>
+          <button class="nav-item" data-panel="statements"><span class="nav-icon">▤</span>Statements</button>
+          <button class="nav-item" data-panel="mobile-money"><span class="nav-icon">📱</span>Mobile Money</button>
+          <button class="nav-item" data-panel="notifications"><span class="nav-icon">🔔</span>Notifications</button>
+          <button class="nav-item" data-panel="support"><span class="nav-icon">✉</span>Support</button>
+          <button class="nav-item" data-panel="profile"><span class="nav-icon">👤</span>Profile</button>
+          <button class="nav-item" data-panel="settings"><span class="nav-icon">⚙</span>Settings</button>
+        </nav>
 
-          <div class="profile-section">
-            <div class="avatar" id="profileAvatar">M</div>
-            <div>
-              <div class="profile-name" id="profileNameHeader">Member</div>
-              <div class="profile-role">Member</div>
+        <div class="sidebar-footer">
+          <div class="security-pill">Protected by bank-grade security</div>
+          <button class="btn btn-ghost btn-full" id="logoutBtn">Logout</button>
+        </div>
+      </aside>
+
+      <div class="main-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Open navigation">☰</button>
+            <label class="search-box" for="globalSearch">
+              <span>🔍</span>
+              <input id="globalSearch" type="search" placeholder="Search transactions or statements" />
+            </label>
+          </div>
+          <div class="topbar-right">
+            <button class="icon-btn" aria-label="Notifications">
+              🔔
+              <span class="badge" id="notificationBadge">0</span>
+            </button>
+            <button class="icon-btn" aria-label="Messages">💬</button>
+            <button class="icon-btn" aria-label="Help">❓</button>
+            <div class="profile-pill">
+              <div class="avatar" id="profileAvatar">JD</div>
+              <div class="profile-meta">
+                <strong id="profileNameHeader">John Doe</strong>
+                <span id="customerId">CUST-1048</span>
+              </div>
             </div>
           </div>
+        </header>
 
-          <button id="logoutBtn" class="logout-btn">Sign Out</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main id="main" class="page-container">
-      <!-- Welcome Section -->
-      <section class="welcome-section">
-        <h1 class="welcome-title">Welcome back, <span id="welcomeName">Member</span>!</h1>
-        <p class="welcome-subtitle">Here's your financial overview</p>
-      </section>
-
-      <!-- Main Dashboard Cards -->
-      <div class="dashboard-grid">
-        <!-- Savings Balance (Prominent) -->
-        <div class="card savings-card">
-          <div class="card-header">
-            <div class="card-label">Your Savings Balance</div>
-            <span class="card-badge badge-success">Active</span>
-          </div>
-          <div class="card-value" id="savingsBalance">GH₵ 0.00</div>
-          <div class="card-subtext">Latest deposit: <span id="latestDeposit">-</span></div>
-          <div class="card-actions">
-            <button class="btn btn-secondary btn-small" id="depositBtn">Deposit Funds</button>
-          </div>
-        </div>
-
-        <!-- Loan Status -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-label">Active Loans</div>
-              <div class="card-value" id="activeLoanCount">0</div>
+        <main id="main" class="content">
+          <section class="panel-section active" id="overview">
+            <div class="hero-card">
+              <div>
+                <p class="eyebrow">Secure digital banking</p>
+                <h1>Good morning, <span id="welcomeName">John Doe</span></h1>
+                <p>Here is an overview of your finances, upcoming payments, and progress toward your savings goals.</p>
+                <div class="hero-actions">
+                  <button class="btn btn-primary" data-action="deposit">Deposit money</button>
+                  <button class="btn btn-ghost" data-action="support">Contact support</button>
+                </div>
+              </div>
+              <div class="hero-stats">
+                <div class="pill">
+                  <strong id="customerIdHero">CUST-1048</strong>
+                  <span>Customer ID</span>
+                </div>
+                <div class="pill">
+                  <strong id="lastLogin">Today, 08:42</strong>
+                  <span>Last login</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="card-subtext">Total amount owed</div>
-          <div class="card-value" id="totalLoanAmount" style="font-size: 1.5rem; color: var(--danger-color);">GH₵ 0.00</div>
-          <div style="margin-top: 1rem;">
-            <span class="card-badge badge-info" id="loanStatus">-</span>
-          </div>
-        </div>
 
-        <!-- Next Repayment -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-label">Next Repayment</div>
-              <div class="card-value" id="nextRepaymentAmount" style="font-size: 1.5rem;">GH₵ 0.00</div>
+            <div class="summary-grid">
+              <article class="stat-card primary">
+                <div class="stat-icon">💳</div>
+                <div class="stat-title">Available balance</div>
+                <div class="stat-value" id="availableBalance">GH₵ 0.00</div>
+                <div class="stat-meta"><span>+8.4% vs last month</span><span class="trend">▲</span></div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-icon">🏦</div>
+                <div class="stat-title">Savings balance</div>
+                <div class="stat-value" id="savingsBalance">GH₵ 0.00</div>
+                <div class="stat-meta"><span>Auto-saved weekly</span><span class="trend">▲</span></div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-icon">🧾</div>
+                <div class="stat-title">Active loan</div>
+                <div class="stat-value" id="activeLoan">GH₵ 0.00</div>
+                <div class="stat-meta"><span>Remaining balance</span><span class="trend">↗</span></div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-title">Monthly goal</div>
+                <div class="stat-value" id="monthlyGoal">GH₵ 0.00</div>
+                <div class="stat-meta"><span>Goal progress on track</span><span class="trend">●</span></div>
+              </article>
             </div>
-          </div>
-          <div class="card-subtext">Due on <span id="nextRepaymentDate">-</span></div>
-          <div style="margin-top: 1rem;">
-            <span class="card-badge" id="repaymentStatus">-</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Recurring Monthly Payment Section -->
-      <section class="section">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-label">Recurring Savings</div>
-              <div class="card-value" id="recurringAmount" style="font-size: 1.5rem;">GH₵ 0.00</div>
+            <div class="actions-grid">
+              <button class="action-card" data-action="deposit"><span class="action-icon">⬆</span><strong>Deposit Money</strong><span>Top up your account instantly</span></button>
+              <button class="action-card" data-action="withdraw"><span class="action-icon">⬇</span><strong>Withdraw Money</strong><span>Move funds to cash or wallet</span></button>
+              <button class="action-card" data-action="loan"><span class="action-icon">💰</span><strong>Apply for Loan</strong><span>Access flexible credit</span></button>
+              <button class="action-card" data-action="repay"><span class="action-icon">✓</span><strong>Repay Loan</strong><span>Stay on top of schedules</span></button>
             </div>
-            <button class="btn btn-small btn-secondary" id="editRecurringBtn">Edit</button>
-          </div>
-          <div class="card-subtext" id="recurringFrequency">Monthly automatically deducted</div>
-          
-          <div class="card-actions">
-            <button class="btn btn-success" id="toggleRecurringBtn">✓ Active</button>
-          </div>
-        </div>
-      </section>
 
-      <!-- Recent Transactions -->
-      <section class="section">
-        <h2 class="section-title">Recent Transactions</h2>
-        <p class="section-subtitle">Your latest activity and payments</p>
-        
-        <div class="table-wrapper">
-          <table id="transactionsTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="5" class="empty-state">No transactions yet. Start saving or apply for a loan to get started.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+            <div class="content-grid">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Savings goal</h2>
+                    <p>Keep momentum toward your target.</p>
+                  </div>
+                  <div class="muted" id="goalProgressText">70%</div>
+                </div>
+                <div class="progress-bar"><span id="goalProgressBar" style="width: 70%"></span></div>
+                <div class="goal-meta">
+                  <div><strong id="goalTarget">GH₵ 180,000.00</strong><span>Target</span></div>
+                  <div><strong id="goalSaved">GH₵ 126,000.00</strong><span>Saved</span></div>
+                </div>
+              </div>
 
-      <!-- Quick Actions Section -->
-      <section class="section">
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="dashboard-grid">
-          <button class="card" id="goToApply" style="border: 2px dashed var(--neutral-300); text-align: center; cursor: pointer; background: transparent; transition: all 0.2s;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
-            <div class="card-label">Apply for Loan</div>
-            <div class="card-subtext">Request funds for your needs</div>
-          </button>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Loan overview</h2>
+                    <p>Your active plan and next payment.</p>
+                  </div>
+                </div>
+                <div class="loan-grid">
+                  <div class="loan-item">
+                    <div>
+                      <div class="micro-label">Loan type</div>
+                      <strong id="loanType">Emergency Loan</strong>
+                    </div>
+                    <div class="muted" id="loanStatusBadge">Active</div>
+                  </div>
+                  <div class="loan-item">
+                    <div>
+                      <div class="micro-label">Outstanding balance</div>
+                      <strong id="loanOutstanding">GH₵ 4,800.00</strong>
+                    </div>
+                    <div class="muted" id="loanInstallment">GH₵ 900.00 / month</div>
+                  </div>
+                  <div class="loan-item">
+                    <div>
+                      <div class="micro-label">Next payment</div>
+                      <strong id="nextPaymentDate">10 Jul 2026</strong>
+                    </div>
+                    <div class="muted" id="remainingMonths">5 months left</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <button class="card" id="goToUpload" style="border: 2px dashed var(--neutral-300); text-align: center; cursor: pointer; background: transparent; transition: all 0.2s;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📄</div>
-            <div class="card-label">Upload Documents</div>
-            <div class="card-subtext">Complete KYC verification</div>
-          </button>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h2>Recent transactions</h2>
+                  <p>Search and filter your latest activity.</p>
+                </div>
+              </div>
+              <div class="table-controls" id="transactionFilters">
+                <button class="chip active" data-range="today">Today</button>
+                <button class="chip" data-range="week">This Week</button>
+                <button class="chip" data-range="month">This Month</button>
+                <button class="chip" data-range="custom">Custom Date</button>
+                <label class="chip" for="dateFrom">From <input id="dateFrom" type="date" /></label>
+                <label class="chip" for="dateTo">To <input id="dateTo" type="date" /></label>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Description</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
 
-          <button class="card" id="goToProfile" style="border: 2px dashed var(--neutral-300); text-align: center; cursor: pointer; background: transparent; transition: all 0.2s;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
-            <div class="card-label">Edit Profile</div>
-            <div class="card-subtext">Update your information</div>
-          </button>
-        </div>
-      </section>
+          <section class="panel-section" id="accounts">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Accounts overview</h2>
+                    <p>Current savings and account balances.</p>
+                  </div>
+                </div>
+                <div class="loan-grid" id="savingsList"></div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Account activity</h2>
+                    <p>Recent deposits, transfers and repayments.</p>
+                  </div>
+                </div>
+                <div class="loan-grid">
+                  <div class="loan-item"><div><div class="micro-label">Total deposits</div><strong id="totalDeposits">GH₵ 0.00</strong></div><div class="muted">This month</div></div>
+                  <div class="loan-item"><div><div class="micro-label">Transfers sent</div><strong id="totalTransfers">GH₵ 0.00</strong></div><div class="muted">Last 7 days</div></div>
+                  <div class="loan-item"><div><div class="micro-label">Repayments made</div><strong id="totalRepayments">GH₵ 0.00</strong></div><div class="muted">Current cycle</div></div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-      <!-- Loan Application Form (Hidden) -->
-      <section id="applySection" style="display: none;">
-        <h2 class="section-title">Apply for a Loan</h2>
-        <form class="form-section" id="loanForm">
-          <div class="form-group">
-            <label for="loanAmount">Loan Amount (GH₵)</label>
-            <input id="loanAmount" type="number" min="100" placeholder="Enter amount" required />
-          </div>
-          <div class="form-group">
-            <label for="loanTerm">Duration (Months)</label>
-            <input id="loanTerm" type="number" min="1" placeholder="6" required />
-          </div>
-          <div class="form-group">
-            <label for="loanPurpose">Loan Purpose</label>
-            <input id="loanPurpose" type="text" placeholder="e.g., Business inventory, school fees" required />
-          </div>
-          <div class="form-group">
-            <label for="loanType">Loan Type</label>
-            <select id="loanType">
-              <option value="personal">Personal</option>
-              <option value="business">Business</option>
-              <option value="group">Group ROSCA</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Submit Loan Application</button>
-        </form>
-      </section>
+          <section class="panel-section" id="savings">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Savings history</h2>
+                    <p>Track each contribution and milestone.</p>
+                  </div>
+                </div>
+                <div class="loan-grid" id="savingsHistory"></div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Create a new savings plan</h2>
+                    <p>Set an automatic contribution and target date.</p>
+                  </div>
+                </div>
+                <form class="form-grid" id="createSavingForm">
+                  <div class="field">
+                    <label for="savingAmount">Initial amount</label>
+                    <input id="savingAmount" type="number" min="1" placeholder="100" required />
+                  </div>
+                  <div class="field">
+                    <label for="savingFrequency">Frequency</label>
+                    <select id="savingFrequency">
+                      <option value="one-off">One-off</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="savingTargetDate">Target date</label>
+                    <input id="savingTargetDate" type="date" />
+                  </div>
+                  <button class="btn btn-primary" type="submit">Create savings plan</button>
+                </form>
+              </div>
+            </div>
+          </section>
 
-      <!-- Document Upload Form (Hidden) -->
-      <section id="uploadSection" style="display: none;">
-        <h2 class="section-title">Upload Documents</h2>
-        <form class="form-section" id="uploadForm">
-          <div class="form-group">
-            <label for="documentType">Document Type</label>
-            <select id="documentType">
-              <option value="national_id">National ID</option>
-              <option value="passport">Passport</option>
-              <option value="utility_bill">Utility Bill</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="documentFile">Select File</label>
-            <input id="documentFile" type="file" accept="image/*,.pdf" required />
-          </div>
-          <button type="submit" class="btn btn-primary">Upload Document</button>
-        </form>
-      </section>
+          <section class="panel-section" id="loans">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Active loan</h2>
+                    <p>Repayment progress and schedule.</p>
+                  </div>
+                </div>
+                <div class="loan-grid">
+                  <div class="loan-item"><div><div class="micro-label">Loan type</div><strong id="loanTypeDetailed">Emergency Loan</strong></div><div class="muted" id="loanStatusDetailed">Active</div></div>
+                  <div class="loan-item"><div><div class="micro-label">Original amount</div><strong id="loanOriginal">GH₵ 12,000.00</strong></div><div class="muted">Approved</div></div>
+                  <div class="loan-item"><div><div class="micro-label">Monthly installment</div><strong id="loanInstallmentDetailed">GH₵ 900.00</strong></div><div class="muted" id="interestRate">16.5% APR</div></div>
+                  <div class="loan-item"><div><div class="micro-label">Remaining months</div><strong id="remainingMonthsDetailed">5 months</strong></div><div class="muted" id="nextPaymentDetailed">10 Jul 2026</div></div>
+                </div>
+                <div class="progress-bar"><span id="loanProgressBar" style="width: 60%"></span></div>
+                <div class="goal-meta"><div><strong id="loanProgressText">60%</strong><span>Repaid</span></div><div><strong id="outstandingDetailed">GH₵ 4,800.00</strong><span>Outstanding</span></div></div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Loan actions</h2>
+                    <p>Pay down your balance or request help.</p>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <button class="btn btn-primary" data-action="repay">Repay loan</button>
+                  <button class="btn btn-ghost" data-action="support">Request support</button>
+                  <div class="support-item"><span>Next due date</span><strong id="nextDueDate">10 Jul 2026</strong></div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-      <!-- Profile Edit Form (Hidden) -->
-      <section id="profileSection" style="display: none;">
-        <h2 class="section-title">Edit Your Profile</h2>
-        <form class="form-section" id="profileForm">
-          <div class="form-group">
-            <label for="profileName">Full Name</label>
-            <input id="profileName" type="text" required />
-          </div>
-          <div class="form-group">
-            <label for="profileEmail">Email Address</label>
-            <input id="profileEmail" type="email" required />
-          </div>
-          <div class="form-group">
-            <label for="profilePhone">Phone Number</label>
-            <input id="profilePhone" type="tel" />
-          </div>
-          <div class="form-group">
-            <label for="profileAddress">Address</label>
-            <input id="profileAddress" type="text" />
-          </div>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-      </section>
+          <section class="panel-section" id="transactions">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h2>All transactions</h2>
+                  <p>Detailed history and downloadable receipts.</p>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Description</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="allTransactionsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
 
-      <!-- Savings Management (Hidden) -->
-      <section id="savingsSection" style="display: none;">
-        <h2 class="section-title">Your Savings Accounts</h2>
-        <div id="savingsList"></div>
-        
-        <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Create New Savings Account</h3>
-        <form class="form-section" id="createSavingForm">
-          <div class="form-group">
-            <label for="savingAmount">Initial Amount (GH₵)</label>
-            <input id="savingAmount" type="number" min="1" placeholder="100" required />
-          </div>
-          <div class="form-group">
-            <label for="savingFrequency">Frequency</label>
-            <select id="savingFrequency">
-              <option value="one-off">One-off</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="savingTargetDate">Target Date (Optional)</label>
-            <input id="savingTargetDate" type="date" />
-          </div>
-          <button type="submit" class="btn btn-primary">Create Savings Account</button>
-        </form>
-      </section>
+          <section class="panel-section" id="statements">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Statements</h2>
+                    <p>Download monthly or annual records.</p>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <div class="two-col">
+                    <button class="btn btn-primary">Download PDF</button>
+                    <button class="btn btn-ghost">Download Excel</button>
+                  </div>
+                  <button class="btn btn-ghost">Print statement</button>
+                </div>
+              </div>
+              <div class="card" id="statementsList"></div>
+            </div>
+          </section>
 
-      <!-- Loan History (Hidden) -->
-      <section id="loansHistorySection" style="display: none;">
-        <h2 class="section-title">Loan History</h2>
-        <div class="table-wrapper">
-          <table id="loansTable">
-            <thead>
-              <tr>
-                <th>Loan Type</th>
-                <th>Amount</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="5" class="empty-state">No loan history yet.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <section class="panel-section" id="mobile-money">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head">
+                  <div><h2>Mobile money services</h2><p>Deposit, withdraw, transfer and repay with your preferred wallet.</p></div>
+                </div>
+                <div class="support-list">
+                  <div class="support-item"><span>MTN Mobile Money</span><strong>Available</strong></div>
+                  <div class="support-item"><span>Telecel Cash</span><strong>Available</strong></div>
+                  <div class="support-item"><span>AirtelTigo Money</span><strong>Available</strong></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div><h2>Quick wallet actions</h2><p>Use secure shortcuts for everyday transfers.</p></div>
+                </div>
+                <div class="form-grid">
+                  <button class="btn btn-primary" data-action="deposit">Deposit</button>
+                  <button class="btn btn-ghost" data-action="withdraw">Withdraw</button>
+                  <button class="btn btn-ghost" data-action="repay">Repay loan</button>
+                  <button class="btn btn-ghost" data-action="transfer">Transfer funds</button>
+                </div>
+              </div>
+            </div>
+          </section>
 
-      <!-- Notifications (Hidden) -->
-      <section id="notificationsSection" style="display: none;">
-        <h2 class="section-title">Notifications</h2>
-        <div id="notificationList" style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--neutral-100);">
-          <p class="empty-state">No notifications at this time.</p>
-        </div>
-      </section>
-    </main>
+          <section class="panel-section" id="notifications">
+            <div class="card">
+              <div class="card-head">
+                <div><h2>Notifications center</h2><p>Unread updates are highlighted for your attention.</p></div>
+              </div>
+              <div id="notificationsList" class="form-grid"></div>
+            </div>
+          </section>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-      <p>Golden Home Of ROSCA © 2026</p>
-      <p>Secure financial dashboard for ROSCA members</p>
-    </footer>
+          <section class="panel-section" id="support">
+            <div class="grid-2">
+              <div class="support-card">
+                <div class="card-head"><div><h2>Support center</h2><p>Pick the channel that works best for you.</p></div></div>
+                <div class="support-list">
+                  <div class="support-item"><span>Live chat</span><strong>Open</strong></div>
+                  <div class="support-item"><span>Ticket system</span><strong>Track issues</strong></div>
+                  <div class="support-item"><span>FAQs</span><strong>Instant answers</strong></div>
+                  <div class="support-item"><span>Branch locator</span><strong>Find a branch</strong></div>
+                  <div class="support-item"><span>Call support</span><strong>+233 30 123 4567</strong></div>
+                  <div class="support-item"><span>Email support</span><strong>support@ghor.org</strong></div>
+                </div>
+              </div>
+              <div class="support-card">
+                <div class="card-head"><div><h2>Need help now?</h2><p>We are ready to assist with deposits, withdrawals or queue requests.</p></div></div>
+                <div class="form-grid">
+                  <button class="btn btn-primary" data-action="support">Start live chat</button>
+                  <button class="btn btn-ghost" data-action="support">Open support ticket</button>
+                </div>
+              </div>
+            </div>
+          </section>
 
-    <!-- Confirmation Modal for Savings -->
-    <div id="createSavingModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-      <div class="modal-content">
-        <div class="modal-header">Confirm Savings Account</div>
-        <div class="modal-body">
-          <p>You're about to create a savings account with:</p>
-          <ul style="margin: 1rem 0;">
-            <li id="modalAmount">Amount: GH₵ 0.00</li>
-            <li id="modalFrequency">Frequency: one-off</li>
-            <li id="modalTarget">Target date: none</li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button id="cancelSavingBtn" class="btn btn-secondary">Cancel</button>
-          <button id="confirmSavingBtn" class="btn btn-primary">Confirm</button>
-        </div>
+          <section class="panel-section" id="profile">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head"><div><h2>Profile details</h2><p>Keep your personal and beneficiary information current.</p></div></div>
+                <form class="form-grid" id="profileForm">
+                  <div class="two-col">
+                    <div class="field"><label for="profileName">Full name</label><input id="profileName" required /></div>
+                    <div class="field"><label for="profilePhone">Phone number</label><input id="profilePhone" /></div>
+                  </div>
+                  <div class="two-col">
+                    <div class="field"><label for="profileEmail">Email</label><input id="profileEmail" type="email" required /></div>
+                    <div class="field"><label for="profileAddress">Residential address</label><input id="profileAddress" /></div>
+                  </div>
+                  <div class="two-col">
+                    <div class="field"><label for="profileOccupation">Occupation</label><input id="profileOccupation" /></div>
+                    <div class="field"><label for="profileKin">Next of kin</label><input id="profileKin" /></div>
+                  </div>
+                  <div class="field"><label for="profileBeneficiaries">Beneficiaries</label><textarea id="profileBeneficiaries" rows="3"></textarea></div>
+                  <button class="btn btn-primary" type="submit">Save profile</button>
+                </form>
+              </div>
+              <div class="card">
+                <div class="card-head"><div><h2>Identity & documents</h2><p>Upload a profile photo or government ID anytime.</p></div></div>
+                <div class="form-grid">
+                  <div class="field"><label for="profilePicture">Profile picture</label><input id="profilePicture" type="file" /></div>
+                  <div class="field"><label for="governmentId">Government ID</label><input id="governmentId" type="file" /></div>
+                  <button class="btn btn-ghost">Upload documents</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-section" id="settings">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head"><div><h2>Security center</h2><p>Protect your account with strong controls.</p></div></div>
+                <div class="security-list">
+                  <div class="security-item"><span>Change password</span><button class="link-btn">Update</button></div>
+                  <div class="security-item"><span>Two-factor authentication</span><button class="link-btn">Enable</button></div>
+                  <div class="security-item"><span>PIN management</span><button class="link-btn">Manage</button></div>
+                  <div class="security-item"><span>Login history</span><button class="link-btn">Review</button></div>
+                  <div class="security-item"><span>Trusted devices</span><button class="link-btn">View</button></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head"><div><h2>Device sessions</h2><p>Review where you are signed in.</p></div></div>
+                <div class="security-list">
+                  <div class="security-item"><span>Chrome on Windows</span><strong>Active</strong></div>
+                  <div class="security-item"><span>Safari on iPhone</span><strong>Active</strong></div>
+                  <div class="security-item"><span>Android app</span><strong>Last seen 2h ago</strong></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <div class="footer">Golden Home Of ROSCA © 2026. Secure financial dashboard for members.</div>
       </div>
     </div>
 
+    <button class="whatsapp-float" aria-label="Contact support">💬</button>
     <script src="scripts.js" defer></script>
     <script src="dashboard.js" defer></script>
   </body>
