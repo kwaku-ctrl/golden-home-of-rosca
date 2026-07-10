@@ -32,8 +32,6 @@ const setToken = (token) => {
 
 const getToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 
-const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
-
 const setUserData = (user) => {
   if (!user) return;
   localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
@@ -48,9 +46,10 @@ const getUserData = () => {
   }
 };
 
+const clearToken = () => localStorage.removeItem(AUTH_TOKEN_KEY);
 const clearUserData = () => localStorage.removeItem(AUTH_USER_KEY);
 
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === ''
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? ''
   : 'https://ghor-backend.onrender.com';
 
@@ -123,8 +122,8 @@ const handleAuthSubmit = async (event) => {
     if (data.token) {
       setToken(data.token);
     }
-    if (data.data?.user) {
-      setUserData(data.data.user);
+    if (data.data?.user || data.user) {
+      setUserData(data.data?.user || data.user);
     }
     showToast(`${mode === 'signup' ? 'Registration' : 'Login'} successful.`);
     redirectToDashboard();

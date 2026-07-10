@@ -75,7 +75,20 @@ const showToast = (message) => {
 };
 
 const formatCurrency = (value) => `GH₵ ${Number(value || 0).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const formatDate = (value) => new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const formatDate = (value) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+const formatDateTime = (value) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'N/A' : date.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+};
+const buildStatementItems = (items = []) => items.slice(0, 3).map((item, index) => ({
+  period: formatDate(item.date || item.createdAt || new Date()),
+  type: index === 0 ? 'Recent activity' : 'Account statement',
+  amount: Number(item.amount || 0),
+  status: 'Ready'
+}));
 
 const demoState = {
   user: {
@@ -201,18 +214,26 @@ const getFirstName = (user = {}) => {
   return fullName.split(/\s+/)[0] || 'Member';
 };
 
-const renderProfile = (user = demoState.user) => {
+const renderProfile = (user = {}) => {
   const firstName = getFirstName(user);
   const initials = firstName.charAt(0).toUpperCase();
-  const customerId = user.customerId || demoState.user.customerId;
-  const lastLogin = user.lastLogin || demoState.user.lastLogin;
+  const customerId = user.customerId || user.customer_id || user.member_id || (user.id ? `CUST-${String(user.id).slice(0, 8).toUpperCase()}` : 'N/A');
+  const lastLoginValue = user.lastLogin || user.last_login || user.updated_at || user.created_at || null;
+  const lastLogin = lastLoginValue ? formatDateTime(lastLoginValue) : 'Not available yet';
 
-  document.getElementById('welcomeName').textContent = firstName;
-  document.getElementById('profileNameHeader').textContent = firstName;
-  document.getElementById('profileAvatar').textContent = initials;
-  document.getElementById('customerId').textContent = customerId;
-  document.getElementById('customerIdHero').textContent = customerId;
-  document.getElementById('lastLogin').textContent = lastLogin;
+  const welcomeName = document.getElementById('welcomeName');
+  const profileNameHeader = document.getElementById('profileNameHeader');
+  const profileAvatar = document.getElementById('profileAvatar');
+  const customerIdEl = document.getElementById('customerId');
+  const customerIdHero = document.getElementById('customerIdHero');
+  const lastLoginEl = document.getElementById('lastLogin');
+
+  welcomeName && (welcomeName.textContent = firstName);
+  profileNameHeader && (profileNameHeader.textContent = firstName);
+  profileAvatar && (profileAvatar.textContent = initials);
+  customerIdEl && (customerIdEl.textContent = customerId);
+  customerIdHero && (customerIdHero.textContent = customerId);
+  lastLoginEl && (lastLoginEl.textContent = lastLogin);
 
   const profileName = document.getElementById('profileName');
   const profileEmail = document.getElementById('profileEmail');
@@ -227,49 +248,72 @@ const renderProfile = (user = demoState.user) => {
   profilePhone && (profilePhone.value = user.phoneNumber || user.phone || '');
   profileAddress && (profileAddress.value = user.address || '');
   profileOccupation && (profileOccupation.value = user.occupation || '');
-  profileKin && (profileKin.value = user.kin || user.nextOfKin || '');
+  profileKin && (profileKin.value = user.kin || user.nextOfKin || user.next_of_kin || '');
   profileBeneficiaries && (profileBeneficiaries.value = user.beneficiaries || '');
 };
 
 const renderSummaryCards = (savingsItems, loanItems) => {
   const totalSavings = savingsItems.reduce((sum, item) => sum + Number(item.balance || 0), 0);
-  const activeLoan = loanItems[0] || demoState.loans[0];
-  const outstanding = Number(activeLoan?.outstandingBalance || activeLoan?.amount || 0);
-  const monthlyGoal = Number(savingsItems[0]?.target || 180000);
-  const progress = Math.min(100, Math.round((totalSavings / monthlyGoal) * 100));
+  const totalOutstanding = loanItems.reduce((sum, item) => sum + Number(item.outstandingBalance || item.amount || item.balance || 0), 0);
+  const monthlyGoal = Number(savingsItems[0]?.target || savingsItems[0]?.target_amount || 0);
+  const safeGoal = monthlyGoal > 0 ? monthlyGoal : Math.max(totalSavings, 1);
+  const progress = Math.min(100, Math.round((totalSavings / safeGoal) * 100));
 
-  document.getElementById('availableBalance').textContent = formatCurrency(totalSavings + 2800);
+  document.getElementById('availableBalance').textContent = formatCurrency(totalSavings);
   document.getElementById('savingsBalance').textContent = formatCurrency(totalSavings);
-  document.getElementById('activeLoan').textContent = formatCurrency(outstanding);
-  document.getElementById('monthlyGoal').textContent = formatCurrency(monthlyGoal);
-  document.getElementById('goalTarget').textContent = formatCurrency(monthlyGoal);
+  document.getElementById('activeLoan').textContent = formatCurrency(totalOutstanding);
+  document.getElementById('monthlyGoal').textContent = formatCurrency(safeGoal);
+  document.getElementById('goalTarget').textContent = formatCurrency(safeGoal);
   document.getElementById('goalSaved').textContent = formatCurrency(totalSavings);
   document.getElementById('goalProgressText').textContent = `${progress}%`;
-  document.getElementById('goalProgressBar').style.width = `${progress}%`;
+  const progressBar = document.getElementById('goalProgressBar');
+  if (progressBar) progressBar.style.width = `${progress}%`;
 };
 
 const renderLoanOverview = (loanItem) => {
-  const activeLoan = loanItem || demoState.loans[0];
-  if (!activeLoan) return;
+  const activeLoan = loanItem || null;
+  if (!activeLoan) {
+    document.getElementById('loanType').textContent = 'No active loan';
+    document.getElementById('loanStatusBadge').textContent = 'No loan';
+    document.getElementById('loanOutstanding').textContent = formatCurrency(0);
+    document.getElementById('loanInstallment').textContent = `${formatCurrency(0)} / month`;
+    document.getElementById('nextPaymentDate').textContent = 'N/A';
+    document.getElementById('remainingMonths').textContent = '0 months left';
 
-  document.getElementById('loanType').textContent = activeLoan.loanType || 'Emergency Loan';
+    document.getElementById('loanTypeDetailed').textContent = 'No active loan';
+    document.getElementById('loanStatusDetailed').textContent = 'No loan';
+    document.getElementById('loanOriginal').textContent = formatCurrency(0);
+    document.getElementById('loanInstallmentDetailed').textContent = formatCurrency(0);
+    document.getElementById('interestRate').textContent = '0% APR';
+    document.getElementById('remainingMonthsDetailed').textContent = '0 months';
+    document.getElementById('nextPaymentDetailed').textContent = 'N/A';
+    document.getElementById('nextDueDate').textContent = 'N/A';
+    const loanProgressBar = document.getElementById('loanProgressBar');
+    if (loanProgressBar) loanProgressBar.style.width = '0%';
+    document.getElementById('loanProgressText').textContent = '0%';
+    document.getElementById('outstandingDetailed').textContent = formatCurrency(0);
+    return;
+  }
+
+  document.getElementById('loanType').textContent = activeLoan.loanType || activeLoan.loan_type || 'Personal loan';
   document.getElementById('loanStatusBadge').textContent = activeLoan.status || 'Active';
-  document.getElementById('loanOutstanding').textContent = formatCurrency(activeLoan.outstandingBalance || activeLoan.amount || 0);
-  document.getElementById('loanInstallment').textContent = `${formatCurrency(activeLoan.monthlyInstallment || 0)} / month`;
-  document.getElementById('nextPaymentDate').textContent = formatDate(activeLoan.nextPaymentDate || new Date());
-  document.getElementById('remainingMonths').textContent = `${activeLoan.remainingMonths || 0} months left`;
+  document.getElementById('loanOutstanding').textContent = formatCurrency(activeLoan.outstandingBalance || activeLoan.outstanding_balance || activeLoan.amount || 0);
+  document.getElementById('loanInstallment').textContent = `${formatCurrency(activeLoan.monthlyInstallment || activeLoan.monthly_installment || 0)} / month`;
+  document.getElementById('nextPaymentDate').textContent = formatDate(activeLoan.nextPaymentDate || activeLoan.next_payment_date || new Date());
+  document.getElementById('remainingMonths').textContent = `${activeLoan.remainingMonths || activeLoan.remaining_months || 0} months left`;
 
-  document.getElementById('loanTypeDetailed').textContent = activeLoan.loanType || 'Emergency Loan';
+  document.getElementById('loanTypeDetailed').textContent = activeLoan.loanType || activeLoan.loan_type || 'Personal loan';
   document.getElementById('loanStatusDetailed').textContent = activeLoan.status || 'Active';
-  document.getElementById('loanOriginal').textContent = formatCurrency(activeLoan.originalAmount || activeLoan.amount || 0);
-  document.getElementById('loanInstallmentDetailed').textContent = formatCurrency(activeLoan.monthlyInstallment || 0);
-  document.getElementById('interestRate').textContent = `${activeLoan.interestRate || '16.5%'} APR`;
-  document.getElementById('remainingMonthsDetailed').textContent = `${activeLoan.remainingMonths || 0} months`;
-  document.getElementById('nextPaymentDetailed').textContent = formatDate(activeLoan.nextPaymentDate || new Date());
-  document.getElementById('nextDueDate').textContent = formatDate(activeLoan.nextPaymentDate || new Date());
-  document.getElementById('loanProgressBar').style.width = `${activeLoan.progress || 60}%`;
-  document.getElementById('loanProgressText').textContent = `${activeLoan.progress || 60}%`;
-  document.getElementById('outstandingDetailed').textContent = formatCurrency(activeLoan.outstandingBalance || 0);
+  document.getElementById('loanOriginal').textContent = formatCurrency(activeLoan.originalAmount || activeLoan.original_amount || activeLoan.amount || 0);
+  document.getElementById('loanInstallmentDetailed').textContent = formatCurrency(activeLoan.monthlyInstallment || activeLoan.monthly_installment || 0);
+  document.getElementById('interestRate').textContent = `${activeLoan.interestRate || activeLoan.interest_rate || '0%'} APR`;
+  document.getElementById('remainingMonthsDetailed').textContent = `${activeLoan.remainingMonths || activeLoan.remaining_months || 0} months`;
+  document.getElementById('nextPaymentDetailed').textContent = formatDate(activeLoan.nextPaymentDate || activeLoan.next_payment_date || new Date());
+  document.getElementById('nextDueDate').textContent = formatDate(activeLoan.nextPaymentDate || activeLoan.next_payment_date || new Date());
+  const loanProgressBar = document.getElementById('loanProgressBar');
+  if (loanProgressBar) loanProgressBar.style.width = `${activeLoan.progress || 0}%`;
+  document.getElementById('loanProgressText').textContent = `${activeLoan.progress || 0}%`;
+  document.getElementById('outstandingDetailed').textContent = formatCurrency(activeLoan.outstandingBalance || activeLoan.outstanding_balance || 0);
 };
 
 const renderSavingsList = (items = []) => {
@@ -528,6 +572,10 @@ const attachPanelHandlers = () => {
 const loadDashboard = async () => {
   try {
     const hasSession = guardAuth();
+    if (!hasSession) {
+      window.location.href = 'login.html';
+      return;
+    }
 
     const [authResult, savingsResult, loansResult, transactionsResult, notificationsResult] = await Promise.allSettled([
       sendRequest('/auth/me'),
@@ -539,26 +587,20 @@ const loadDashboard = async () => {
 
     const auth = authResult.status === 'fulfilled' ? authResult.value : null;
     const cachedUser = getUserData();
-    const authUser = auth?.data?.user || auth?.user || auth?.data || cachedUser || demoState.user;
+    const authUser = auth?.data?.user || auth?.user || auth?.data || cachedUser || {};
     if (auth?.data?.user) {
       setUserData(auth.data.user);
     }
 
-    const savingsItems = normalizeArray(savingsResult.status === 'fulfilled' ? savingsResult.value : null, demoState.savings);
-    const loanItems = normalizeArray(loansResult.status === 'fulfilled' ? loansResult.value : null, demoState.loans);
-    const transactionItems = normalizeArray(transactionsResult.status === 'fulfilled' ? transactionsResult.value : null, demoState.transactions);
-    const notificationItems = normalizeArray(notificationsResult.status === 'fulfilled' ? notificationsResult.value : null, demoState.notifications);
-    const statementItems = demoState.statements;
-
-    if (!hasSession) {
-      showToast('Showing preview dashboard. Sign in to load live account data.');
-    } else if (!auth && cachedUser) {
-      showToast('Using cached member profile while session is being verified.');
-    }
+    const savingsItems = normalizeArray(savingsResult.status === 'fulfilled' ? savingsResult.value : null, []);
+    const loanItems = normalizeArray(loansResult.status === 'fulfilled' ? loansResult.value : null, []);
+    const transactionItems = normalizeArray(transactionsResult.status === 'fulfilled' ? transactionsResult.value : null, []);
+    const notificationItems = normalizeArray(notificationsResult.status === 'fulfilled' ? notificationsResult.value : null, []);
+    const statementItems = buildStatementItems(transactionItems);
 
     renderProfile(authUser);
     renderSummaryCards(savingsItems, loanItems);
-    renderLoanOverview(loanItems[0] || demoState.loans[0]);
+    renderLoanOverview(loanItems[0] || null);
     renderSavingsList(savingsItems);
     renderSavingsHistory(savingsItems);
     state.transactions = transactionItems;
@@ -566,9 +608,16 @@ const loadDashboard = async () => {
     renderNotifications(notificationItems);
     renderStatements(statementItems);
 
-    document.getElementById('totalDeposits').textContent = formatCurrency(4500);
-    document.getElementById('totalTransfers').textContent = formatCurrency(800);
-    document.getElementById('totalRepayments').textContent = formatCurrency(900);
+    const depositTotal = transactionItems.reduce((sum, item) => sum + (String(item.type || '').toLowerCase() === 'deposit' ? Number(item.amount || 0) : 0), 0);
+    const transferTotal = transactionItems.reduce((sum, item) => sum + (String(item.type || '').toLowerCase() === 'transfer' ? Number(item.amount || 0) : 0), 0);
+    const repaymentTotal = transactionItems.reduce((sum, item) => sum + (String(item.type || '').toLowerCase() === 'repayment' ? Number(item.amount || 0) : 0), 0);
+
+    const totalDepositsEl = document.getElementById('totalDeposits');
+    const totalTransfersEl = document.getElementById('totalTransfers');
+    const totalRepaymentsEl = document.getElementById('totalRepayments');
+    if (totalDepositsEl) totalDepositsEl.textContent = formatCurrency(depositTotal);
+    if (totalTransfersEl) totalTransfersEl.textContent = formatCurrency(transferTotal);
+    if (totalRepaymentsEl) totalRepaymentsEl.textContent = formatCurrency(repaymentTotal);
     attachPanelHandlers();
   } catch (error) {
     if (getToken()) {
