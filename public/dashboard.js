@@ -90,52 +90,6 @@ const buildStatementItems = (items = []) => items.slice(0, 3).map((item, index) 
   status: 'Ready'
 }));
 
-const demoState = {
-  user: {
-    fullName: 'John Doe',
-    email: 'john.doe@example.com',
-    phoneNumber: '+233 24 123 4567',
-    address: 'Accra, Ghana',
-    occupation: 'Software Engineer',
-    kin: 'Ama Doe',
-    beneficiaries: 'Mrs. Sarah Doe, Kofi Doe',
-    customerId: 'CUST-1048',
-    lastLogin: 'Today, 08:42'
-  },
-  savings: [
-    { accountType: 'Goal Savings', balance: 126000, status: 'Active', target: 180000 },
-    { accountType: 'Emergency Fund', balance: 18000, status: 'Active', target: 30000 }
-  ],
-  loans: [{
-    loanType: 'Emergency Loan',
-    originalAmount: 12000,
-    outstandingBalance: 4800,
-    monthlyInstallment: 900,
-    interestRate: '16.5%',
-    remainingMonths: 5,
-    nextPaymentDate: '2026-07-10',
-    status: 'Active',
-    progress: 60
-  }],
-  transactions: [
-    { date: '2026-06-27', description: 'Salary deposit', type: 'Deposit', amount: 4500, status: 'Successful' },
-    { date: '2026-06-21', description: 'Loan repayment', type: 'Repayment', amount: 900, status: 'Successful' },
-    { date: '2026-06-18', description: 'Transfer to family', type: 'Transfer', amount: 800, status: 'Pending' },
-    { date: '2026-06-10', description: 'Mobile money deposit', type: 'Deposit', amount: 750, status: 'Successful' },
-    { date: '2026-06-02', description: 'Utility payment', type: 'Payment', amount: 320, status: 'Failed' }
-  ],
-  notifications: [
-    { title: 'Loan approved', message: 'Your loan request was approved and funded.', status: 'unread', date: '2026-06-27' },
-    { title: 'Deposit successful', message: 'GH₵ 4,500.00 was credited to your savings.', status: 'read', date: '2026-06-27' },
-    { title: 'Upcoming payment reminder', message: 'Your next loan installment is due on 10 Jul 2026.', status: 'unread', date: '2026-06-26' }
-  ],
-  statements: [
-    { period: 'June 2026', type: 'Monthly statement', amount: 126000, status: 'Ready' },
-    { period: 'May 2026', type: 'Monthly statement', amount: 121200, status: 'Ready' },
-    { period: '2025 Annual statement', type: 'Annual statement', amount: 1450000, status: 'Ready' }
-  ]
-};
-
 const normalizeArray = (source, fallback = []) => {
   if (Array.isArray(source)) return source;
   if (Array.isArray(source?.data)) return source.data;
