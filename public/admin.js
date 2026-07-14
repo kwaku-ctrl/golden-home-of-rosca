@@ -16,18 +16,27 @@ const sendRequest = async (path, options = {}) => {
   return data;
 };
 
+const getRole = (user = {}) => {
+  return (user?.role || user?.user_role || '')
+    .toString()
+    .trim()
+    .toLowerCase();
+};
+
 const guardAdmin = async () => {
   try {
     const me = await sendRequest('/auth/me');
     const user = me.data || me.user || me;
-    if (!user || !['admin', 'super-admin'].includes(user.role)) {
+    if (!user || !['admin', 'super-admin'].includes(getRole(user))) {
       clearToken();
       window.location.href = 'login.html';
+      return null;
     }
     return user;
   } catch (err) {
     clearToken();
     window.location.href = 'login.html';
+    return null;
   }
 };
 

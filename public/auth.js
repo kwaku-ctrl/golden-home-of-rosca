@@ -58,8 +58,15 @@ const getCookie = (name) => {
   return match ? decodeURIComponent(match[2]) : null;
 };
 
+const getRole = (user = {}) => {
+  return (user?.role || user?.user_role || '')
+    .toString()
+    .trim()
+    .toLowerCase();
+};
+
 const redirectToDashboard = (user = null) => {
-  const role = user?.role || getUserData()?.role;
+  const role = getRole(user || getUserData());
   if (['admin', 'super-admin'].includes(role)) {
     window.location.href = 'admin.html';
     return;

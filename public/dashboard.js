@@ -57,8 +57,15 @@ const sendRequest = async (path, options = {}) => {
   return data;
 };
 
+const getRole = (user = {}) => {
+  return (user?.role || user?.user_role || '')
+    .toString()
+    .trim()
+    .toLowerCase();
+};
+
 const isAdminUser = (user = {}) => {
-  const role = (user.role || user.user_role || '').toString().toLowerCase();
+  const role = getRole(user);
   return ['admin', 'super-admin'].includes(role);
 };
 
