@@ -65,6 +65,14 @@ const getRole = (user = {}) => {
     .toLowerCase();
 };
 
+const extractToken = (payload = {}) => {
+  return payload?.token || payload?.data?.token || payload?.user?.token || '';
+};
+
+const extractUser = (payload = {}) => {
+  return payload?.data?.user || payload?.data || payload?.user || payload;
+};
+
 const redirectToDashboard = (user = null) => {
   const role = getRole(user || getUserData());
   if (['admin', 'super-admin'].includes(role)) {
@@ -131,9 +139,10 @@ const handleAuthSubmit = async (event) => {
 
   try {
     const data = await requestAuth(mode, payload);
-    const user = data.data?.user || data.user;
-    if (data.token) {
-      setToken(data.token);
+    const user = extractUser(data);
+    const token = extractToken(data);
+    if (token) {
+      setToken(token);
     }
     if (user) {
       setUserData(user);

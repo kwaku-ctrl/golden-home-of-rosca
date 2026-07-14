@@ -26,7 +26,7 @@ const getRole = (user = {}) => {
 const guardAdmin = async () => {
   try {
     const me = await sendRequest('/auth/me');
-    const user = me.data || me.user || me;
+    const user = me.data?.user || me.data || me.user || me;
     if (!user || !['admin', 'super-admin'].includes(getRole(user))) {
       clearToken();
       window.location.href = 'login.html';
