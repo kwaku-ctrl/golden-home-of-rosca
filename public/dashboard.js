@@ -57,6 +57,11 @@ const sendRequest = async (path, options = {}) => {
   return data;
 };
 
+const isAdminUser = (user = {}) => {
+  const role = (user.role || user.user_role || '').toString().toLowerCase();
+  return ['admin', 'super-admin'].includes(role);
+};
+
 const guardAuth = () => {
   if (!getToken()) {
     return false;
@@ -544,6 +549,12 @@ const loadDashboard = async () => {
     const authUser = auth?.data?.user || auth?.user || auth?.data || cachedUser || {};
     if (auth?.data?.user) {
       setUserData(auth.data.user);
+    }
+
+    if (isAdminUser(authUser)) {
+      clearUserData();
+      window.location.href = 'admin.html';
+      return;
     }
 
     const savingsItems = normalizeArray(savingsResult.status === 'fulfilled' ? savingsResult.value : null, []);

@@ -58,7 +58,12 @@ const getCookie = (name) => {
   return match ? decodeURIComponent(match[2]) : null;
 };
 
-const redirectToDashboard = () => {
+const redirectToDashboard = (user = null) => {
+  const role = user?.role || getUserData()?.role;
+  if (['admin', 'super-admin'].includes(role)) {
+    window.location.href = 'admin.html';
+    return;
+  }
   window.location.href = 'dashboard.html';
 };
 
@@ -119,14 +124,15 @@ const handleAuthSubmit = async (event) => {
 
   try {
     const data = await requestAuth(mode, payload);
+    const user = data.data?.user || data.user;
     if (data.token) {
       setToken(data.token);
     }
-    if (data.data?.user || data.user) {
-      setUserData(data.data?.user || data.user);
+    if (user) {
+      setUserData(user);
     }
     showToast(`${mode === 'signup' ? 'Registration' : 'Login'} successful.`);
-    redirectToDashboard();
+    redirectToDashboard(user);
   } catch (error) {
     showToast(error.message);
   } finally {
@@ -138,7 +144,7 @@ const handleAuthSubmit = async (event) => {
 const initAuthPage = () => {
   if (!authForm) return;
   if (getToken()) {
-    redirectToDashboard();
+    redirectToDashboard(getUserData());
     return;
   }
 
