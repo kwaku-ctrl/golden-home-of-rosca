@@ -180,8 +180,17 @@ const getFirstName = (user = {}) => {
   return fullName.split(/\s+/)[0] || 'Member';
 };
 
+const getTimeGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Good morning';
+  if (hour >= 12 && hour < 17) return 'Good afternoon';
+  if (hour >= 17 && hour < 22) return 'Good evening';
+  return 'Welcome';
+};
+
 const renderProfile = (user = {}) => {
   const firstName = getFirstName(user);
+  const greeting = getTimeGreeting();
   const initials = firstName.charAt(0).toUpperCase();
   const customerId = user.customerId || user.customer_id || user.member_id || (user.id ? `CUST-${String(user.id).slice(0, 8).toUpperCase()}` : 'N/A');
   const lastLoginValue = user.lastLogin || user.last_login || user.updated_at || user.created_at || null;
@@ -194,7 +203,7 @@ const renderProfile = (user = {}) => {
   const customerIdHero = document.getElementById('customerIdHero');
   const lastLoginEl = document.getElementById('lastLogin');
 
-  welcomeName && (welcomeName.textContent = firstName);
+  welcomeName && (welcomeName.textContent = `${greeting}, ${firstName}`);
   profileNameHeader && (profileNameHeader.textContent = firstName);
   profileAvatar && (profileAvatar.textContent = initials);
   customerIdEl && (customerIdEl.textContent = customerId);
