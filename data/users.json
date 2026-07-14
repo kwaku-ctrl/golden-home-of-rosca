@@ -1,0 +1,32 @@
+[
+  {
+    "id": "7794ac1d-7a74-4eac-aaf7-e101ddf0fe05",
+    "full_name": "Copilot Tester",
+    "email": "copilot-auth-14b26c7cd906418eab7ccef0e7c463a1@example.com",
+    "phone_number": "0550000000",
+    "password": "$2a$12$rtFdR4h/J7ToZVs4vNKS4uxqyUr.rWKVNgP5Cdd29Zr5LLE7BKa4y",
+    "role": "member",
+    "created_at": "2026-06-27T02:59:02.902Z",
+    "updated_at": "2026-06-27T02:59:02.902Z"
+  },
+  {
+    "id": "1d414bbd-2e74-4531-81f6-50a87ae615be",
+    "full_name": "CLI Test",
+    "email": "cli.test.auth@ghor.test",
+    "phone_number": "+10000000003",
+    "password": "$2a$12$x6cEVZ7Zexhgfz3PGM6w9uS7pgQ1AzIJ9fPhe2344byYMUfmpywl6",
+    "role": "member",
+    "created_at": "2026-06-28T15:28:13.772Z",
+    "updated_at": "2026-06-28T15:28:13.772Z"
+  },
+  {
+    "id": "ad278a7b-6d16-4c7d-91c0-32e2d1d67145",
+    "full_name": "Ghor Admin",
+    "email": "admin@ghor.local",
+    "phone_number": "+233550000001",
+    "password": "$2a$12$RyRMorn3YKtVSsqHPDnEjel/IOFqKECtZ53YPVwZMzOgde8EdqJS6",
+    "role": "admin",
+    "created_at": "2026-07-14T00:00:00.000Z",
+    "updated_at": "2026-07-14T00:00:00.000Z"
+  }
+]
